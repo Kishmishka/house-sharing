@@ -1,0 +1,15 @@
+.header{
+	background-image: url(../../image/headerFon.jpg);
+	background-repeat: no-repeat;
+
+	background-size:auto;
+	padding-top:20px;
+	overflow: hidden;
+	background-position-y: -420px;
+	&__nav{
+		display: flex;
+		justify-content: center;
+		gap: 10px
+	}
+	
+}
