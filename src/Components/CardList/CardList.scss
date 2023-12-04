@@ -1,0 +1,34 @@
+.CardList {
+	padding-top: 475px;
+	&__container {
+		display: flex;
+		flex-direction: column;
+	}
+
+	&__ofers {
+		background-color: #F9F9F6;
+		position: fixed;
+		z-index: 2;
+		display: flex;
+		text-transform: uppercase;
+		color: #235938;
+		font-size: 35px;
+		border-bottom: 4px solid #CCCCCC;
+		padding-bottom: 5px;
+		margin-bottom: 5px;
+		min-width: 550px;
+		padding-left: 20px;
+	}
+
+	&__ofers-count {
+		
+	}
+	&__list{
+		margin-top: 60px;
+	}
+	&__ofers-title {
+		margin-right: 10px;
+	}
+}
+.container {
+}

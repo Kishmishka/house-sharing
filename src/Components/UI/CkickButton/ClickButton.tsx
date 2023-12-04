@@ -1,19 +1,20 @@
 import React, { FC } from 'react'
-import { useStore } from '../../store';
+// import { useStore } from '../../../store';
 import './ClickButton.scss'
 
 interface ClickButtonProps{
 	text:string
 	state:boolean
-	setState:()=>void;
+	namePlace:String
+	setState:(name:String)=>void;
 }
 
-const ClickButton:FC<ClickButtonProps> = ({text,state, setState}) => {
+const ClickButton:FC<ClickButtonProps> = ({text, state, setState, namePlace}) => {
 	
 	return(
 		<div
 		 className={!state ? 'ClickButton' : 'ClickButton active'}
-		 onClick={setState}
+		 onClick={()=>{setState(namePlace)}}
 		>
 			<div className='ClickButton__text'>{text}</div>
 			<div className= {!state ? 'ClickButton__figure' : 'ClickButton__figure active'}></div>

@@ -1,42 +1,38 @@
 import React from 'react'
-import { useStore } from '../../store'
-import ClickButton from '../CkickButton/ClickButton'
+import { useHousePlaceStore } from '../../store'
+// import { useStore } from '../../store'
+import ClickButton from '../UI/CkickButton/ClickButton'
 import './SortingMenu.scss'
 
 const SortingMenu = () => {
-	const {btnClickCenter, revBtnClickCenter} = useStore()
-	const {btnClickEast, revBtnClickEast} = useStore()
-	const {btnClickWest, revBtnClickWest} = useStore()
-	const {btnClickNorth, revBtnClickNorth} = useStore()
-	const {btnClickSouth, revBtnClickSouth} = useStore()
-	const {btnClickBlane, revBtnClickBlane} = useStore()
-	const {minMax, swapMinMax} = useStore()
-	const {maxMin, swapMaxMin} = useStore()
+	
+	const {housePlace,priceSort,setHouseClass,swapMinMax} = useHousePlaceStore()
 	return(
 		<div className='SortingMenu'>
 			<div className='container'>
 				<div className='SortingMenu__content'>
 				<div className='SortingMenu__sort'>
 					<div className='SortingMenu__title'>Цена:</div>
-					<ClickButton text={"низк.-выс."} state={minMax} setState={swapMinMax}/>
+					<ClickButton text={"низк.-выс."} state={priceSort[0].value} namePlace={priceSort[0].name} setState={swapMinMax}/>
 					<div className='SortingMenu__separator'></div>
-					<ClickButton text={"выс.-низк."}  state={maxMin} setState={swapMaxMin} />
+					<ClickButton text={"выс.-низк."}  state={priceSort[1].value} namePlace={priceSort[1].name} setState={swapMinMax} />
 				</div>
 				<div className='SortingMenu__place'>
 					<div className='SortingMenu__title'>Место:</div>
-					<ClickButton text={"центр"} state={btnClickCenter} setState={revBtnClickCenter}/>
+					<ClickButton text={"центр"} state={housePlace[0].value} setState={setHouseClass} namePlace={housePlace[0].name}/>
 					<div className='SortingMenu__separator'></div>
-					<ClickButton text={"Восточний л-с"} state={btnClickEast} setState={revBtnClickEast} />
+					<ClickButton text={"Восточний л-с"} state={housePlace[1].value} setState={setHouseClass} namePlace={housePlace[1].name}/>
 					<div className='SortingMenu__separator'></div>
-					<ClickButton text={"Западный л-с"} state={btnClickWest} setState={revBtnClickWest}/>
+					<ClickButton text={"Западный л-с"} state={housePlace[2].value} setState={setHouseClass} namePlace={housePlace[2].name}/>
 					<div className='SortingMenu__separator'></div>
-					<ClickButton text={"Северный л-с"} state={btnClickNorth} setState={revBtnClickNorth}/>
+					<ClickButton text={"Северный л-с"} state={housePlace[3].value} setState={setHouseClass} namePlace={housePlace[3].name}/>
 					<div className='SortingMenu__separator'></div>
-					<ClickButton text={"Южный л-с"} state={btnClickSouth} setState={revBtnClickSouth}/>
+					<ClickButton text={"Южный л-с"} state={housePlace[4].value} setState={setHouseClass} namePlace={housePlace[4].name}/>
 					<div className='SortingMenu__separator'></div>
-					<ClickButton text={"округ блэйн"}state={btnClickBlane} setState={revBtnClickBlane} />
+					<ClickButton text={"округ блэйн"}state={housePlace[5].value} setState={setHouseClass} namePlace={housePlace[5].name}/>
 				</div>
 				</div>
+				
 			</div>
 		</div>
 )
