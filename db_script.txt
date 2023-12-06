@@ -18,7 +18,8 @@ CREATE TABLE House(
 	district VARCHAR(100) NOT NULL,
 	comfort_class VARCHAR(100) NOT NULL,
 	description TEXT,
-	discount_price DECIMAL(8,2)
+	discount_price DECIMAL(8,2),
+	map_location DECIMAL(8,8)[]
 );
 
 CREATE TABLE Rented_House(
