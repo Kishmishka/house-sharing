@@ -1,7 +1,10 @@
 package org.example.model;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+import java.util.Objects;
 
 @Entity
 @Table(name = "Client")
@@ -74,18 +77,34 @@ public class Client {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(login, password, phoneNumber, email, balance);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        Client client = (Client) obj;
+        return login.equals(client.login)
+                && password.equals(client.password)
+                && phoneNumber.equals(client.phoneNumber)
+                && email.equalsIgnoreCase(client.email)
+                && balance.compareTo(client.balance) == 0;
+    }
+
+    @Override
     public String toString() {
-        var sb = new StringBuilder();
-
-        sb.append("\nClient{")
-                .append("id=").append(id)
-                .append(", login='").append(login).append('\'')
-                .append(", password='").append(password).append('\'')
-                .append(", phoneNumber='").append(phoneNumber).append('\'')
-                .append(", email='").append(email).append('\'')
-                .append(", balance='").append(balance)
-                .append('}');
-
-        return  sb.toString();
+        try {
+            return new ObjectMapper().writeValueAsString(this);
+        }
+        catch (JsonProcessingException e) {
+            return "Error convert Client to JSON";
+        }
     }
 }
