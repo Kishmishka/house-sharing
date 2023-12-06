@@ -1,0 +1,99 @@
+defaul url: http://localhost:8080/
+
+client controller:
+	GET
+		{url}/api/clients/all/ - return JSON with all clients in db
+		example returned body:
+		{
+				"clients": [
+				{
+					"id": 1,
+					"login": "user1",
+					"password": "password1",
+					"phoneNumber": "1234567890",
+					"email": "user1@example.com",
+					"balance": 100.00
+				},
+				{
+					"id": 2,
+					"login": "user2",
+					"password": "password2",
+					"phoneNumber": "2345678901",
+					"email": "user2@example.com",
+					"balance": 200.00
+				},
+				{
+					"id": 3,
+					"login": "user3",
+					"password": "password3",
+					"phoneNumber": "3456789012",
+					"email": "user3@example.com",
+					"balance": 300.00
+				}
+			]
+		}
+		
+		{url}/api/clients/{id} - return JSON with client by id (ex: {url}/api/clients/2)
+		example returned body:
+		{
+			"client": {
+				"id": 2,
+				"login": "user2",
+				"password": "password2",
+				"phoneNumber": "2345678901",
+				"email": "user2@example.com",
+				"balance": 200.00
+			}
+		}
+		
+		{url}/api/clients/login - return JSON with client by login and password (ex: {url}/api/clients/login?login=razondark&password=razondark)
+		example returned body (success):
+		{
+			"client": {
+				"id": 21,
+				"login": "razondark",
+				"password": "db8023f8cb3221526188e5f0e0e879499ae24dbb517b775125e0f2802f4fa284",
+				"phoneNumber": "222",
+				"email": "213333333@",
+				"balance": 4.20
+			}
+		}
+		example returned body (not success):
+		{
+			"message": "Client not found"
+		}
+		
+	POST
+		{url}/api/clients/create - return JSON with created client if it was created (ex: {url}/api/clients/create?login=razondark1&password=razondark&phoneNumber=222&email=213333333@&balance=4.2)
+		example returned body (success):
+		{
+			"id": 22,
+			"login": "razondark1",
+			"password": "db8023f8cb3221526188e5f0e0e879499ae24dbb517b775125e0f2802f4fa284",
+			"phoneNumber": "222",
+			"email": "213333333@",
+			"balance": 4.2
+		}
+		example returned body (not success) [TODO: MORE INFORMATION IF ERROR]:
+		{
+			"timestamp": "2023-12-06T11:54:49.221+00:00",
+			"status": 500,
+			"error": "Internal Server Error",
+			"path": "/api/clients/create"
+		}
+		
+	DELETE
+		{url}/api/clients/{id} - return JSON with client by id (ex: {url}/api/clients/22)
+		example returned body (success) [TODO: MORE INFORMATION IF SUCCESS]:
+		{
+			"message": "Client deleted"
+		}
+		example returned body (not success) [TODO: DO IT]:
+		
+		
+		
+		
+		
+		
+		
+		
