@@ -1,13 +1,18 @@
 package org.example.model;
 
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.*;
+import org.example.response.ErrorMessageResponse;
+import org.springframework.http.HttpStatus;
+
 import java.math.BigDecimal;
 import java.util.Objects;
 
 @Entity
 @Table(name = "Client")
+@SuppressWarnings("unused")
 public class Client {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -104,7 +109,7 @@ public class Client {
             return new ObjectMapper().writeValueAsString(this);
         }
         catch (JsonProcessingException e) {
-            return "Error convert Client to JSON";
+            return e.getMessage();
         }
     }
 }

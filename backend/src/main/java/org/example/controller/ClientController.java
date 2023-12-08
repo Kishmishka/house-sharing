@@ -1,8 +1,15 @@
 package org.example.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.hibernateConnector.HibernateSessionController;
 import org.example.model.Client;
-import org.hibernate.cfg.Configuration;
+import org.example.response.ErrorMessageResponse;
+import org.example.response.ResponseMessage;
+import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,101 +18,116 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 @RestController
 @RequestMapping("/api/clients")
 @SuppressWarnings("unused")
 public class ClientController {
-    @GetMapping("/all")
-    public String GetAllClients() {
-        var sessionFactory = new Configuration().configure().buildSessionFactory();
-        var session = sessionFactory.openSession();
+    @Autowired
+    private HibernateSessionController sessionController;
 
-        session.beginTransaction();
-        List<Client> clients = session.createQuery("from Client", Client.class).list();
-        session.getTransaction().commit();
+    @RequestMapping(value = "/all", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getAllClients() {
+        class Clients {
+            public final List<Client> clients;
+            public Clients(List<Client> clients) {
+                this.clients = clients;
+            }
+        }
 
-        session.close();
-        sessionFactory.close();
-
-        return "{ \"clients\" : " + clients.toString() + "}";
-    }
-
-    @GetMapping("/{id}")
-    public String getClientById(@PathVariable("id") Long id) {
-        var sessionFactory = new Configuration().configure().buildSessionFactory();
-        var session = sessionFactory.openSession();
-
-        session.beginTransaction();
-        var client = session.get(Client.class, id);
-        session.getTransaction().commit();
-
-        session.close();
-        sessionFactory.close();
-
-        return "{ \"client\" : " + client.toString() + "}";
-    }
-
-    @GetMapping("/login")
-    public String getClientByLoginAndPassword(@RequestParam("login") String login, @RequestParam("password") String password) {
-        var sessionFactory = new Configuration().configure().buildSessionFactory();
-        var session = sessionFactory.openSession();
-
-        session.beginTransaction();
-        var query = session.createQuery("from Client where login = :login and password = :password", Client.class);
-        query.setParameter("login", login);
-        query.setParameter("password", hashPassword(password));
-        var client = query.uniqueResult();
-        session.getTransaction().commit();
-
-        session.close();
-        sessionFactory.close();
-
-        if (client != null) {
-            return "{ \"client\" : " + client + "}";
-        } else {
-            return "{ \"message\" : \"Client not found\"}";
+        try (var session = HibernateSessionController.openSession()) {
+            List<Client> clients = session.createQuery("from Client", Client.class).list();
+            return new ResponseEntity<>(new Clients(clients), HttpStatus.OK);
+        }
+        catch (Exception e) {
+            return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @PostMapping("/create")
-    @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<Client> CreateClient(@RequestParam("login") String login, @RequestParam("password") String password, @RequestParam("phoneNumber") String phoneNumber, @RequestParam("email") String email, @RequestParam("balance") BigDecimal balance) {
-        var sessionFactory = new Configuration().configure().buildSessionFactory();
-        var session = sessionFactory.openSession();
-
-        var newClient = new Client();
-        newClient.setLogin(login);
-        newClient.setPassword(hashPassword(password));
-        newClient.setPhoneNumber(phoneNumber);
-        newClient.setEmail(email);
-        newClient.setBalance(balance);
-
-        session.beginTransaction();
-        session.persist(newClient);
-        session.getTransaction().commit();
-
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getClientById(@PathVariable("id") Long id) {
+        var session = HibernateSessionController.openSession();
+        var client = session.get(Client.class, id);
         session.close();
-        sessionFactory.close();
+
+        if (client == null) {
+            return new ResponseEntity<>(ResponseMessage.CLIENT_NOT_FOUND.getJSON(), HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(client, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/login", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getClientByLoginAndPassword(@RequestBody String loginData) {
+        if (!loginData.contains("login") || !loginData.contains("password")) {
+            return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.BAD_REQUEST, "Request must contains 'login' and 'password'"), HttpStatus.BAD_REQUEST);
+        }
+
+        try (var session = HibernateSessionController.openSession()) {
+            var loginDataMap = new ObjectMapper().readValue(loginData, Map.class);
+
+            String login = (String)loginDataMap.get("login");
+            String password = (String)loginDataMap.get("password");
+
+            var query = session.createQuery("from Client where login = :login and password = :password", Client.class);
+            query.setParameter("login", login);
+            query.setParameter("password", hashPassword(password));
+            var client = query.uniqueResult();
+
+            if (client == null) { // if client not found
+                query = session.createQuery("from Client where login = :login", Client.class);
+                query.setParameter("login", login);
+                client = query.uniqueResult();
+                if (client != null) { // if client found
+                    return new ResponseEntity<>(ResponseMessage.INCORRECT_PASSWORD.getJSON(), HttpStatus.UNAUTHORIZED);
+                }
+                return new ResponseEntity<>(ResponseMessage.CLIENT_NOT_FOUND.getJSON(), HttpStatus.NOT_FOUND);
+            }
+
+            return new ResponseEntity<>(client, HttpStatus.OK);
+        }
+        catch (JsonProcessingException e) {
+            return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.BAD_REQUEST, e.getMessage()), HttpStatus.BAD_REQUEST);
+        }
+        catch (Exception e) {
+            return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // TODO: 08.12.2023 need check params in json (lgin, eil, ...)
+    @RequestMapping(value = "/create", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> createClient(@RequestBody Client newClient) {
+        try (var session = HibernateSessionController.openSession()) {
+            session.beginTransaction();
+            newClient.setPassword(hashPassword(newClient.getPassword())); // hash password
+            session.persist(newClient);
+            session.getTransaction().commit();
+        }
+        catch (ConstraintViolationException e) {
+            return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.BAD_REQUEST, "This login already exists"), HttpStatus.BAD_REQUEST);
+        }
+        catch (Exception e) {
+            return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.BAD_REQUEST, e.getMessage()), HttpStatus.BAD_REQUEST);
+        }
         return new ResponseEntity<>(newClient, HttpStatus.CREATED);
     }
 
-    @DeleteMapping("/{id}")
-    public String deleteClientById(@PathVariable("id") Long id) {
-        var sessionFactory = new Configuration().configure().buildSessionFactory();
-        var session = sessionFactory.openSession();
+    @RequestMapping(value = "/give_money", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getMoneyToClient(@RequestBody Client client) {
+        try (var session = HibernateSessionController.openSession()) {
+            var random = new Random();
 
-        session.beginTransaction();
-        var client = session.get(Client.class, id);
-        if (client != null) {
-            session.remove(client);
+            session.beginTransaction();
+            var newBalance = BigDecimal.valueOf(random.nextDouble() * 99.9 + 0.1); // [0.1; 100.0]
+            client.setBalance(client.getBalance().add(newBalance));
+            session.merge(client);
+            session.getTransaction().commit();
         }
-        session.getTransaction().commit();
-
-        session.close();
-        sessionFactory.close();
-
-        return "{ \"message\" : \"Client deleted\"}";
+        catch (Exception e) {
+            return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<>(client, HttpStatus.OK);
     }
 
     private String hashPassword(String password) {
@@ -115,10 +137,8 @@ public class ClientController {
             byte[] hash = digest.digest(password.getBytes(StandardCharsets.UTF_8));
             return bytesToHex(hash);
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            return null;
         }
-
-        return null;
     }
 
     private String bytesToHex(byte[] hash) {

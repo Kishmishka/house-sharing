@@ -1,10 +1,14 @@
 package org.example.model;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+import java.util.Objects;
 
 @Entity
 @Table(name = "House")
+@SuppressWarnings("unused")
 public class House {
 
     @Id
@@ -34,6 +38,9 @@ public class House {
 
     @Column(name = "discount_price", precision = 8, scale = 2)
     private BigDecimal discountPrice;
+
+    @Column(name = "map_location")
+    private String mapLocation;
 
     public Long getId() {
         return id;
@@ -105,5 +112,45 @@ public class House {
 
     public void setDiscountPrice(BigDecimal discountPrice) {
         this.discountPrice = discountPrice;
+    }
+
+    public String getMapLocation() {
+        return mapLocation;
+    }
+
+    public void setMapLocation(String mapLocation) {
+        this.mapLocation = mapLocation;
+    }
+
+//    @Override
+//    public int hashCode() {
+//        return Objects.hash(login, password, phoneNumber, email, balance);
+//    }
+//
+//    @Override
+//    public boolean equals(Object obj) {
+//        if (this == obj) {
+//            return true;
+//        }
+//        if (obj == null || getClass() != obj.getClass()) {
+//            return false;
+//        }
+//
+//        Client client = (Client) obj;
+//        return login.equals(client.login)
+//                && password.equals(client.password)
+//                && phoneNumber.equals(client.phoneNumber)
+//                && email.equalsIgnoreCase(client.email)
+//                && balance.compareTo(client.balance) == 0;
+//    }
+
+    @Override
+    public String toString() {
+        try {
+            return new ObjectMapper().writeValueAsString(this);
+        }
+        catch (JsonProcessingException e) {
+            return "Error convert Client to JSON";
+        }
     }
 }
