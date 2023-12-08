@@ -46,11 +46,11 @@ VALUES
 ('user3', 'password3', '3456789012', 'user3@example.com', 300.00);
 
 -- Добавление 3 записей в таблицу House
-INSERT INTO House (photo_link, address, parking_spaces_count, price_per_day, district, comfort_class, description, discount_price)
+INSERT INTO House (photo_link, address, parking_spaces_count, price_per_day, district, comfort_class, description, discount_price, map_location, addition_date)
 VALUES 
-('link1', 'address1', 2, 100.00, 'district1', 'comfort1', 'description1', 90.00),
-('link2', 'address2', 3, 150.00, 'district2', 'comfort2', 'description2', 140.00),
-('link3', 'address3', 4, 200.00, 'district3', 'comfort3', 'description3', 180.00);
+  ('http://example.com/photo1.jpg', '123 Main St', 2, 150.00, 'Central', 'Luxury', 'Beautiful house with a great view', NULL, '{40.7128,-74.0060}', '2023-01-01 12:00:00'),
+  ('http://example.com/photo2.jpg', '456 Oak St', 1, 120.00, 'Suburb', 'Standard', 'Cozy home with a garden', 100.00, '{34.0522,-118.2437}', '2023-02-15 14:30:00'),
+  ('http://example.com/photo3.jpg', '789 Pine St', 0, 80.00, 'Downtown', 'Economy', 'Compact apartment in the city center', NULL, '{41.8781,-87.6298}', '2023-03-30 10:45:00');
 
 -- Добавление 3 записей в таблицу Rented_House
 INSERT INTO Rented_House (id_house, id_client, rental_duration, total_amount)
