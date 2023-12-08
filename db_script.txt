@@ -19,7 +19,7 @@ CREATE TABLE House(
 	comfort_class VARCHAR(100) NOT NULL,
 	description TEXT,
 	discount_price DECIMAL(8,2),
-	map_location DECIMAL(8,8)[],
+	map_location NUMERIC(3,7)[],
 	addition_date TIMESTAMP
 );
 
