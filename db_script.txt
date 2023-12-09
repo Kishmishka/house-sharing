@@ -36,6 +36,11 @@ CREATE TABLE Rented_House(
 		REFERENCES Client(id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
+CREATE VIEW FreeHouse
+AS
+	SELECT * FROM house
+	WHERE id NOT IN (
+		SELECT id_house FROM rented_house)
 
 
 -- Добавление 3 записей в таблицу Client
