@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public enum ResponseMessage {
     CLIENT_NOT_FOUND("Client not found"),
-    INCORRECT_PASSWORD("Incorrect password");
+    INCORRECT_PASSWORD("Incorrect password"),
+    LOGIN_ALREADY_EXISTS("Login already exists"),
+    HOUSES_NOT_FOUND("Houses not found");
 
     private String message;
 

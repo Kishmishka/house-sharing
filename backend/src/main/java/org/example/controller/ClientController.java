@@ -95,9 +95,13 @@ public class ClientController {
         }
     }
 
-    // TODO: 08.12.2023 need check params in json (lgin, eil, ...)
     @RequestMapping(value = "/create", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> createClient(@RequestBody Client newClient) {
+        if (newClient.getLogin() == null ||  newClient.getPassword() == null
+        || newClient.getPhoneNumber() == null) {
+            return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.BAD_REQUEST, "Request must contains 'login', 'password' and 'phoneNumber'"), HttpStatus.BAD_REQUEST);
+        }
+
         try (var session = HibernateSessionController.openSession()) {
             session.beginTransaction();
             newClient.setPassword(hashPassword(newClient.getPassword())); // hash password
@@ -105,11 +109,12 @@ public class ClientController {
             session.getTransaction().commit();
         }
         catch (ConstraintViolationException e) {
-            return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.BAD_REQUEST, "This login already exists"), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(ResponseMessage.LOGIN_ALREADY_EXISTS.getJSON(), HttpStatus.CONFLICT);
         }
         catch (Exception e) {
             return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.BAD_REQUEST, e.getMessage()), HttpStatus.BAD_REQUEST);
         }
+
         return new ResponseEntity<>(newClient, HttpStatus.CREATED);
     }
 

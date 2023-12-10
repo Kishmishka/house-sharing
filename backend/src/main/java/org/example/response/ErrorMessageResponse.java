@@ -3,6 +3,7 @@ package org.example.response;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.http.HttpStatus;
 
+@SuppressWarnings("Field")
 public class ErrorMessageResponse {
     @JsonProperty("status")
     private HttpStatus status;

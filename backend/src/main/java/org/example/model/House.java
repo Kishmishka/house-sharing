@@ -3,8 +3,9 @@ package org.example.model;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.*;
+
 import java.math.BigDecimal;
-import java.util.Objects;
+import java.sql.Timestamp;
 
 @Entity
 @Table(name = "House")
@@ -39,8 +40,11 @@ public class House {
     @Column(name = "discount_price", precision = 8, scale = 2)
     private BigDecimal discountPrice;
 
-    @Column(name = "map_location")
-    private String mapLocation;
+    @Column(name = "map_location" , nullable = false)//, columnDefinition = "NUMERIC(10,7)[]")
+    private BigDecimal[] mapLocation;
+
+    @Column(name = "addition_date", nullable = false, columnDefinition = "TIMESTAMP DEFAULT NOW()")
+    private Timestamp additionDate;
 
     public Long getId() {
         return id;
@@ -113,13 +117,20 @@ public class House {
     public void setDiscountPrice(BigDecimal discountPrice) {
         this.discountPrice = discountPrice;
     }
-
-    public String getMapLocation() {
+    public BigDecimal[] getMapLocation() {
         return mapLocation;
     }
 
-    public void setMapLocation(String mapLocation) {
+    public void setMapLocation(BigDecimal[] mapLocation) {
         this.mapLocation = mapLocation;
+    }
+
+    public Timestamp getAdditionDate() {
+        return additionDate;
+    }
+
+    public void setAdditionDate(Timestamp additionDate) {
+        this.additionDate = additionDate;
     }
 
 //    @Override
