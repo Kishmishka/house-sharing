@@ -20,15 +20,15 @@ CREATE TABLE House(
 	description TEXT,
 	discount_price DECIMAL(8,2),
 	map_location DECIMAL(10,7)[] NOT NULL,
-	addition_date TIMESTAMP DEFAULT NOW()
+	addition_date TIMESTAMP(6) DEFAULT NOW()
 );
 
 CREATE TABLE Rented_House(
 	id_house BIGSERIAL NOT NULL,
 	id_client BIGSERIAL NOT NULL,
-	rental_start_date DATE NOT NULL DEFAULT NOW(),
+	rental_start_date TIMESTAMP(6) NOT NULL DEFAULT NOW(),
 	rental_duration INTEGER NOT NULL CHECK (rental_duration BETWEEN 1 AND 31),
-	rental_end_date DATE NOT NULL DEFAULT (NOW() + INTERVAL '1 day'),
+	rental_end_date TIMESTAMP(6) NOT NULL DEFAULT (NOW() + INTERVAL '1 day'),
 	total_amount DECIMAL(8,2) NOT NULL,
 	
 	CONSTRAINT PK_RentedHouse_IDHouseIDClient PRIMARY KEY(id_house, id_client),
