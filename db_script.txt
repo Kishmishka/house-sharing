@@ -1,7 +1,7 @@
 CREATE DATABASE House-Sharing;
 
 CREATE TABLE Client(
-	id SERIAL PRIMARY KEY,
+	id BIGSERIAL PRIMARY KEY,
 	login VARCHAR(50) UNIQUE NOT NULL,
 	password VARCHAR(150) NOT NULL,
 	phone_number VARCHAR(15) NOT NULL,
@@ -10,7 +10,7 @@ CREATE TABLE Client(
 );
 
 CREATE TABLE House(
-	id SERIAL PRIMARY KEY,
+	id BIGSERIAL PRIMARY KEY,
 	photo_link TEXT,
 	address VARCHAR(150) NOT NULL,
 	parking_spaces_count INTEGER NOT NULL DEFAULT 0,
@@ -24,8 +24,8 @@ CREATE TABLE House(
 );
 
 CREATE TABLE Rented_House(
-	id_house SERIAL NOT NULL,
-	id_client SERIAL NOT NULL,
+	id_house BIGSERIAL NOT NULL,
+	id_client BIGSERIAL NOT NULL,
 	rental_start_date DATE NOT NULL DEFAULT NOW(),
 	rental_duration INTEGER NOT NULL CHECK (rental_duration BETWEEN 1 AND 31),
 	rental_end_date DATE NOT NULL DEFAULT (NOW() + INTERVAL '1 day'),
