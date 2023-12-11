@@ -26,7 +26,9 @@ CREATE TABLE House(
 CREATE TABLE Rented_House(
 	id_house SERIAL NOT NULL,
 	id_client SERIAL NOT NULL,
+	rental_start_date DATE NOT NULL DEFAULT NOW(),
 	rental_duration INTEGER NOT NULL CHECK (rental_duration BETWEEN 1 AND 31),
+	rental_end_date DATE NOT NULL DEFAULT (NOW() + INTERVAL '1 day'),
 	total_amount DECIMAL(8,2) NOT NULL,
 	
 	CONSTRAINT PK_RentedHouse_IDHouseIDClient PRIMARY KEY(id_house, id_client),
@@ -39,8 +41,22 @@ CREATE TABLE Rented_House(
 CREATE VIEW FreeHouse
 AS
 	SELECT * FROM house
-	WHERE id NOT IN (
-		SELECT id_house FROM rented_house)
+	WHERE id NOT IN (SELECT id_house FROM rented_house)
+		OR id IN (SELECT id_house FROM rented_house
+				  WHERE rental_end_date < NOW());
+
+
+CREATE OR REPLACE FUNCTION CalculateRentalEndDate() RETURNS TRIGGER AS $$
+BEGIN
+    NEW.rental_end_date := NEW.rental_start_date + make_interval(days => NEW.rental_duration);
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER CalculateRentalEndDateTrigger
+BEFORE INSERT ON Rented_House
+FOR EACH ROW EXECUTE FUNCTION CalculateRentalEndDate();
+
 
 
 -- Добавление 3 записей в таблицу Client
