@@ -1,18 +1,19 @@
 CREATE DATABASE House-Sharing;
 
 CREATE TABLE Client(
-	id SERIAL PRIMARY KEY,
+	id BIGSERIAL PRIMARY KEY,
 	login VARCHAR(50) UNIQUE NOT NULL,
 	password VARCHAR(150) NOT NULL,
-	phone_number VARCHAR(15) NOT NULL,
-	email VARCHAR(50),
+	status VARCHAR(10) NOT NULL DEFAULT 'user',
+	phone_number VARCHAR(15) UNIQUE NOT NULL,
+	email VARCHAR(50) UNIQUE,
 	balance DECIMAL(10,2) NOT NULL DEFAULT 0
 );
 
 CREATE TABLE House(
-	id SERIAL PRIMARY KEY,
+	id BIGSERIAL PRIMARY KEY,
 	photo_link TEXT,
-	address VARCHAR(150) NOT NULL,
+	address VARCHAR(150) UNIQUE NOT NULL,
 	parking_spaces_count INTEGER NOT NULL DEFAULT 0,
 	price_per_day DECIMAL(8,2) NOT NULL,
 	district VARCHAR(100) NOT NULL,
@@ -20,13 +21,16 @@ CREATE TABLE House(
 	description TEXT,
 	discount_price DECIMAL(8,2),
 	map_location DECIMAL(10,7)[] NOT NULL,
-	addition_date TIMESTAMP DEFAULT NOW()
+	addition_date TIMESTAMP(6) DEFAULT NOW(),
+	last_change_date TIMESTAMP(6)
 );
 
 CREATE TABLE Rented_House(
-	id_house SERIAL NOT NULL,
-	id_client SERIAL NOT NULL,
+	id_house BIGSERIAL NOT NULL,
+	id_client BIGSERIAL NOT NULL,
+	rental_start_date TIMESTAMP(6) NOT NULL DEFAULT NOW(),
 	rental_duration INTEGER NOT NULL CHECK (rental_duration BETWEEN 1 AND 31),
+	rental_end_date TIMESTAMP(6) NOT NULL DEFAULT (NOW() + INTERVAL '1 day'),
 	total_amount DECIMAL(8,2) NOT NULL,
 	
 	CONSTRAINT PK_RentedHouse_IDHouseIDClient PRIMARY KEY(id_house, id_client),
@@ -39,8 +43,22 @@ CREATE TABLE Rented_House(
 CREATE VIEW FreeHouse
 AS
 	SELECT * FROM house
-	WHERE id NOT IN (
-		SELECT id_house FROM rented_house)
+	WHERE id NOT IN (SELECT id_house FROM rented_house)
+		OR id IN (SELECT id_house FROM rented_house
+				  WHERE rental_end_date < NOW());
+
+
+CREATE OR REPLACE FUNCTION CalculateRentalEndDate() RETURNS TRIGGER AS $$
+BEGIN
+    NEW.rental_end_date := NEW.rental_start_date + make_interval(days => NEW.rental_duration);
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER CalculateRentalEndDateTrigger
+BEFORE INSERT ON Rented_House
+FOR EACH ROW EXECUTE FUNCTION CalculateRentalEndDate();
+
 
 
 -- Добавление 3 записей в таблицу Client
