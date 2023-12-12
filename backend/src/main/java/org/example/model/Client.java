@@ -4,8 +4,6 @@ package org.example.model;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.*;
-import org.example.response.ErrorMessageResponse;
-import org.springframework.http.HttpStatus;
 
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -23,6 +21,9 @@ public class Client {
 
     @Column(name = "password", nullable = false)
     private String password;
+
+    @Column(name = "status")
+    private String status;
 
     @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
@@ -57,6 +58,14 @@ public class Client {
         this.password = password;
     }
 
+    public String getStatus() {
+        return this.status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     public String getPhoneNumber() {
         return phoneNumber;
     }
@@ -83,7 +92,7 @@ public class Client {
 
     @Override
     public int hashCode() {
-        return Objects.hash(login, password, phoneNumber, email, balance);
+        return Objects.hash(login, password, status, phoneNumber, balance);
     }
 
     @Override
@@ -96,11 +105,11 @@ public class Client {
         }
 
         Client client = (Client) obj;
-        return login.equals(client.login)
-                && password.equals(client.password)
-                && phoneNumber.equals(client.phoneNumber)
-                && email.equalsIgnoreCase(client.email)
-                && balance.compareTo(client.balance) == 0;
+        return Objects.equals(login, client.login)
+                && Objects.equals(password, client.password)
+                && Objects.equals(status, client.status)
+                && Objects.equals(phoneNumber, client.phoneNumber)
+                && Objects.equals(balance, client.balance);
     }
 
     @Override

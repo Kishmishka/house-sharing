@@ -124,7 +124,7 @@ public class ClientController {
             var random = new Random();
 
             session.beginTransaction();
-            var newBalance = BigDecimal.valueOf(random.nextDouble() * 99.9 + 0.1); // [0.1; 100.0]
+            var newBalance = BigDecimal.valueOf(random.nextDouble() * 999.9 + 0.1); // [0.1; 100.0]
             client.setBalance(client.getBalance().add(newBalance));
             session.merge(client);
             session.getTransaction().commit();

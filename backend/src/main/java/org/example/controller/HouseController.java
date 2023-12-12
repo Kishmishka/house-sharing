@@ -1,37 +1,35 @@
 package org.example.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.hibernateConnector.HibernateSessionController;
 import org.example.model.House;
 import org.example.response.ErrorMessageResponse;
 import org.example.response.ResponseMessage;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/houses")
-@SuppressWarnings({"unused"})
+@SuppressWarnings("unused")
 public class HouseController {
+    private record Houses(List<House> houses) {
+    }
+
     @Autowired
     private HibernateSessionController sessionController;
 
     @RequestMapping(value = "/all", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> GetAllHouses() {
-        class Houses {
-            public final List<House> houses;
-
-            public Houses(List<House> houses) {
-                this.houses = houses;
-            }
-        }
-
+    public ResponseEntity<?> getAllHouses() {
         try (var session = HibernateSessionController.openSession()) {
             List<House> houses = session.createQuery("from House", House.class).list();
             return new ResponseEntity<>(new Houses(houses), HttpStatus.OK);
@@ -40,214 +38,136 @@ public class HouseController {
         }
     }
 
-    @RequestMapping(value = "/all/sort-price", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> GetSortHouses(@RequestBody String order) {
+    @RequestMapping(value = "/free", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getFreeHousesByParams(@RequestParam(value = "comfort-class", required = false) String comfortClass,
+                                                   @RequestParam(value = "districts", required = false) List<String> districts) {
         try (var session = HibernateSessionController.openSession()) {
-            var orderMap = new ObjectMapper().readValue(order, Map.class);
-
-            String orderBy = (String)orderMap.get("order_by");
-            if (orderBy == null) {
-                return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.BAD_REQUEST, "JSON must contains 'order_by'"), HttpStatus.BAD_REQUEST);
+            if (comfortClass == null && districts == null) { // /free/all
+                List<House> houses = session.createNativeQuery("select * from FreeHouse", House.class).list();
+                return new ResponseEntity<>(new Houses(houses), HttpStatus.OK);
             }
 
-            var query = session.createQuery("from House order by pricePerDay " + orderBy, House.class);
-            var houses = query.getResultList();
+            String query;
+            if (comfortClass != null && districts == null) { // /free/{comfortClass}
+                query = "select * from FreeHouse WHERE comfort_class ILIKE '" + comfortClass + "'";
+            } else if (comfortClass == null && !districts.isEmpty()) { // /free/all/{districts}
+                query = getSelectQueryForDistricts(districts);
+            } else { // /free/{comfortClass}/{districts}
+                query = getSelectQueryForDistricts(districts) + " AND comfort_class ILIKE '" + comfortClass + "'";
+            }
 
-            if (houses == null) { // if houses not found
+            var houses = session.createNativeQuery(query, House.class).list();
+
+            if (houses.isEmpty()) { // if houses not found
                 return new ResponseEntity<>(ResponseMessage.HOUSES_NOT_FOUND.getJSON(), HttpStatus.NOT_FOUND);
             }
 
-            return new ResponseEntity<>(houses, HttpStatus.OK);
-        }
-        catch (JsonProcessingException e) {
-            return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.BAD_REQUEST, e.getMessage()), HttpStatus.BAD_REQUEST);
-        }
-        catch (Exception e) {
-            return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @RequestMapping(value = "/free", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> GetFreeHouses() {
-        class Houses {
-            public final List<House> houses;
-
-            public Houses(List<House> houses) {
-                this.houses = houses;
-            }
-        }
-
-        try (var session = HibernateSessionController.openSession()) {
-            List<House> houses = session.createNativeQuery("select * from FreeHouse", House.class).list();
             return new ResponseEntity<>(new Houses(houses), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @RequestMapping(value = "/free/sort-price", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> GetFreeSortHouses(@RequestBody String order) {
-        try (var session = HibernateSessionController.openSession()) {
-            var orderMap = new ObjectMapper().readValue(order, Map.class);
-
-            String orderBy = (String)orderMap.get("order_by");
-            if (orderBy == null) {
-                return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.BAD_REQUEST, "JSON must contains 'order_by'"), HttpStatus.BAD_REQUEST);
-            }
-
-            var query = session.createNativeQuery("select * from FreeHouse order by price_per_day " + orderBy, House.class);
-            var houses = query.list();
-
-            if (houses == null) { // if houses not found
-                return new ResponseEntity<>(ResponseMessage.HOUSES_NOT_FOUND.getJSON(), HttpStatus.NOT_FOUND);
-            }
-
-            return new ResponseEntity<>(houses, HttpStatus.OK);
+    @RequestMapping(value = "/create", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> createHouse(@RequestBody House newHouse) {
+        if (newHouse.getAddress() == null || newHouse.getPricePerDay() == null
+                || newHouse.getDistrict() == null || newHouse.getComfortClass() == null
+                || newHouse.getMapLocation() == null) {
+            return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.BAD_REQUEST, "Request must contains 'address', 'price_per_day', 'district', 'comfort_class' and 'map_location'"), HttpStatus.BAD_REQUEST);
         }
-        catch (JsonProcessingException e) {
+
+        try (var session = HibernateSessionController.openSession()) {
+            session.beginTransaction();
+
+            if (newHouse.getAdditionDate() == null) {
+                newHouse.setAdditionDate(Timestamp.valueOf(LocalDateTime.now(ZoneId.of("Europe/Moscow")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"))));
+            }
+
+            session.persist(newHouse);
+            session.getTransaction().commit();
+        } catch (ConstraintViolationException e) {
+            return new ResponseEntity<>(ResponseMessage.LOGIN_ALREADY_EXISTS.getJSON(), HttpStatus.CONFLICT);
+        } catch (Exception e) {
             return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.BAD_REQUEST, e.getMessage()), HttpStatus.BAD_REQUEST);
         }
-        catch (Exception e) {
+
+        return new ResponseEntity<>(newHouse, HttpStatus.CREATED);
+    }
+
+    @RequestMapping(value = "/edit", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> editHouse(@RequestBody House editHouse) {
+        if (editHouse.getAddress() == null || editHouse.getPricePerDay() == null
+                || editHouse.getDistrict() == null || editHouse.getComfortClass() == null
+                || editHouse.getMapLocation() == null) {
+            return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.BAD_REQUEST, "Request must contains 'address', 'price_per_day', 'district', 'comfort_class' and 'map_location'"), HttpStatus.BAD_REQUEST);
+        }
+
+        try (var session = HibernateSessionController.openSession()) {
+            House oldHouse = session.get(House.class, editHouse.getId());
+            if (oldHouse.equals(editHouse)) {
+                return new ResponseEntity<>(ResponseMessage.NO_DIFFERENCE_BETWEEN_DATA.getJSON(), HttpStatus.CONFLICT);
+            }
+
+            try {
+                var methods = oldHouse.getClass().getMethods();
+                for (var method : methods) {
+                    if (method.getName().startsWith("get") && method.getParameterTypes().length == 0 && !void.class.equals(method.getReturnType())) {
+                        if (!Objects.equals(method.invoke(oldHouse), method.invoke(editHouse))) {
+                            var setterName = method.getName().replace("get", "set");
+                            var setter = House.class.getMethod(setterName, method.getReturnType());
+                            setter.invoke(oldHouse, method.invoke(editHouse));
+                        }
+                    }
+                }
+
+                oldHouse.setLastChangeDate(Timestamp.valueOf(LocalDateTime.now(ZoneId.of("Europe/Moscow")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"))));
+            } catch (Exception e) {
+                return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+
+            session.beginTransaction();
+            session.merge(oldHouse);
+            session.getTransaction().commit();
+
+            return new ResponseEntity<>(oldHouse, HttpStatus.OK);
+        } catch (Exception e) {
             return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @RequestMapping(value = "/free/sort-district", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> GetFreeHousesByDistrict(@RequestBody String district) {
+    @RequestMapping(value = "/delete", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> deleteHouse(@RequestParam(value = "id") Long id) {
         try (var session = HibernateSessionController.openSession()) {
-            var districtMap = new ObjectMapper().readValue(district, Map.class);
-
-            String foundDistrict = (String)districtMap.get("district");
-            if (foundDistrict == null) {
-                return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.BAD_REQUEST, "JSON must contains 'district'"), HttpStatus.BAD_REQUEST);
+            House deletedHouse = session.get(House.class, id);
+            if (deletedHouse == null) {
+                return new ResponseEntity<>(ResponseMessage.HOUSE_NOT_FOUND.getJSON(), HttpStatus.NOT_FOUND);
             }
 
-            var query = session.createNativeQuery("select * from FreeHouse where district ILIKE '" + foundDistrict + "'", House.class);
-            var houses = query.list();
+            session.beginTransaction();
+            session.remove(deletedHouse);
+            session.getTransaction().commit();
 
-            if (houses == null) { // if houses not found
-                return new ResponseEntity<>(ResponseMessage.HOUSES_NOT_FOUND.getJSON(), HttpStatus.NOT_FOUND);
-            }
-
-            return new ResponseEntity<>(houses, HttpStatus.OK);
-        }
-        catch (JsonProcessingException e) {
-            return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.BAD_REQUEST, e.getMessage()), HttpStatus.BAD_REQUEST);
-        }
-        catch (Exception e) {
+            return new ResponseEntity<>(ResponseMessage.DELETED_SUCCESSFULLY.getJSON(), HttpStatus.OK);
+        } catch (Exception e) {
             return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @RequestMapping(value = "/free/sort-district-and-order", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> GetFreeHousesByDistrictAndOrder(@RequestBody String districtAndOrder) {
-        try (var session = HibernateSessionController.openSession()) {
-            var districtAndOrderMap = new ObjectMapper().readValue(districtAndOrder, Map.class);
+    private String getSelectQueryForDistricts(List<?> districts) {
+        var sb = new StringBuilder();
 
-            String district = (String)districtAndOrderMap.get("district");
-            String order = (String)districtAndOrderMap.get("order_by");
-            if (district == null || order == null) {
-                return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.BAD_REQUEST, "JSON must contains 'district' and 'order_by'"), HttpStatus.BAD_REQUEST);
+        sb.append("select * from FreeHouse WHERE (");
+        for (int i = 0; i < districts.size(); i++) {
+            sb.append("district ILIKE '")
+                    .append(districts.get(i))
+                    .append("' ");
+
+            if (i != districts.size() - 1) {
+                sb.append("OR ");
             }
-
-            var query = session.createNativeQuery("select * from FreeHouse where district ILIKE '" + district + "' order by price_per_day " + order, House.class);
-            var houses = query.list();
-
-            if (houses == null) { // if houses not found
-                return new ResponseEntity<>(ResponseMessage.HOUSES_NOT_FOUND.getJSON(), HttpStatus.NOT_FOUND);
-            }
-
-            return new ResponseEntity<>(houses, HttpStatus.OK);
         }
-        catch (JsonProcessingException e) {
-            return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.BAD_REQUEST, e.getMessage()), HttpStatus.BAD_REQUEST);
-        }
-        catch (Exception e) {
-            return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+        sb.append(")");
 
-    @RequestMapping(value = "/free/comfort-class", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> GetFreeHousesByComfortClass(@RequestBody String comfortClass) {
-        try (var session = HibernateSessionController.openSession()) {
-            var comfortClassMap = new ObjectMapper().readValue(comfortClass, Map.class);
-
-            String foundComfortClass = (String)comfortClassMap.get("comfort_class");
-            if (foundComfortClass == null) {
-                return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.BAD_REQUEST, "JSON must contains 'comfort_class'"), HttpStatus.BAD_REQUEST);
-            }
-
-            var query = session.createNativeQuery("select * from FreeHouse where comfort_class ILIKE '" + foundComfortClass + "'", House.class);
-            var houses = query.list();
-
-            if (houses == null) { // if houses not found
-                return new ResponseEntity<>(ResponseMessage.HOUSES_NOT_FOUND.getJSON(), HttpStatus.NOT_FOUND);
-            }
-
-            return new ResponseEntity<>(houses, HttpStatus.OK);
-        }
-        catch (JsonProcessingException e) {
-            return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.BAD_REQUEST, e.getMessage()), HttpStatus.BAD_REQUEST);
-        }
-        catch (Exception e) {
-            return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @RequestMapping(value = "/free/comfort-class/sort-district", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> GetFreeHousesByComfortClassAndDistrict(@RequestBody String comfortClassAndDistrict) {
-        try (var session = HibernateSessionController.openSession()) {
-            var comfortClassAndDistrictMap = new ObjectMapper().readValue(comfortClassAndDistrict, Map.class);
-
-            String district = (String)comfortClassAndDistrictMap.get("district");
-            String comfortClass = (String)comfortClassAndDistrictMap.get("comfort_class");
-            if (district == null || comfortClass == null) {
-                return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.BAD_REQUEST, "JSON must contains 'district' and 'comfort_class'"), HttpStatus.BAD_REQUEST);
-            }
-
-            var query = session.createNativeQuery("select * from FreeHouse where district ILIKE '" + district + "' and comfort_class ILIKE '" + comfortClass + "'", House.class);
-            var houses = query.list();
-
-            if (houses == null) { // if houses not found
-                return new ResponseEntity<>(ResponseMessage.HOUSES_NOT_FOUND.getJSON(), HttpStatus.NOT_FOUND);
-            }
-
-            return new ResponseEntity<>(houses, HttpStatus.OK);
-        }
-        catch (JsonProcessingException e) {
-            return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.BAD_REQUEST, e.getMessage()), HttpStatus.BAD_REQUEST);
-        }
-        catch (Exception e) {
-            return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @RequestMapping(value = "/free/comfort-class/sort-district-and-order", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> GetFreeHousesByComfortClassAndDistrictAndOrder(@RequestBody String comfortClassAndDistrictAndOrder) {
-        try (var session = HibernateSessionController.openSession()) {
-            var comfortClassAndDistrictAndOrderMap = new ObjectMapper().readValue(comfortClassAndDistrictAndOrder, Map.class);
-
-            String district = (String)comfortClassAndDistrictAndOrderMap.get("district");
-            String comfortClass = (String)comfortClassAndDistrictAndOrderMap.get("comfort_class");
-            String order = (String)comfortClassAndDistrictAndOrderMap.get("order_by");
-            if (district == null || order == null || comfortClass == null) {
-                return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.BAD_REQUEST, "JSON must contains 'district', 'comfort_class' and 'order_by'"), HttpStatus.BAD_REQUEST);
-            }
-
-            var query = session.createNativeQuery("select * from FreeHouse where district ILIKE '" + district + "' and comfort_class ILIKE '" + comfortClass + "' order by price_per_day " + order, House.class);
-            var houses = query.list();
-
-            if (houses == null) { // if houses not found
-                return new ResponseEntity<>(ResponseMessage.HOUSES_NOT_FOUND.getJSON(), HttpStatus.NOT_FOUND);
-            }
-
-            return new ResponseEntity<>(houses, HttpStatus.OK);
-        }
-        catch (JsonProcessingException e) {
-            return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.BAD_REQUEST, e.getMessage()), HttpStatus.BAD_REQUEST);
-        }
-        catch (Exception e) {
-            return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return sb.toString();
     }
 }

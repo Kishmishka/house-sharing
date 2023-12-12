@@ -1,11 +1,14 @@
 package org.example.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.Arrays;
+import java.util.Objects;
 
 @Entity
 @Table(name = "House")
@@ -40,11 +43,16 @@ public class House {
     @Column(name = "discount_price", precision = 8, scale = 2)
     private BigDecimal discountPrice;
 
-    @Column(name = "map_location" , nullable = false)//, columnDefinition = "NUMERIC(10,7)[]")
+    @Column(name = "map_location" , nullable = false, columnDefinition = "NUMERIC(10,7)[]")
     private BigDecimal[] mapLocation;
 
-    @Column(name = "addition_date", nullable = false, columnDefinition = "TIMESTAMP DEFAULT NOW()")
+    @Column(name = "addition_date", nullable = false, columnDefinition = "TIMESTAMP")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS", timezone = "Europe/Moscow")
     private Timestamp additionDate;
+
+    @Column(name = "last_change_date", columnDefinition = "TIMESTAMP")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS", timezone = "Europe/Moscow")
+    private Timestamp lastChangeDate;
 
     public Long getId() {
         return id;
@@ -133,27 +141,39 @@ public class House {
         this.additionDate = additionDate;
     }
 
-//    @Override
-//    public int hashCode() {
-//        return Objects.hash(login, password, phoneNumber, email, balance);
-//    }
-//
-//    @Override
-//    public boolean equals(Object obj) {
-//        if (this == obj) {
-//            return true;
-//        }
-//        if (obj == null || getClass() != obj.getClass()) {
-//            return false;
-//        }
-//
-//        Client client = (Client) obj;
-//        return login.equals(client.login)
-//                && password.equals(client.password)
-//                && phoneNumber.equals(client.phoneNumber)
-//                && email.equalsIgnoreCase(client.email)
-//                && balance.compareTo(client.balance) == 0;
-//    }
+    public Timestamp getLastChangeDate() {
+        return lastChangeDate;
+    }
+
+    public void setLastChangeDate(Timestamp lastChangeDate) {
+        this.lastChangeDate = lastChangeDate;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(address, parkingSpacesCount, pricePerDay, district, comfortClass, Arrays.hashCode(mapLocation));
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        House house = (House) obj;
+        return Objects.equals(photoLink, house.photoLink)
+                && Objects.equals(address, house.address)
+                && Objects.equals(parkingSpacesCount, house.parkingSpacesCount)
+                && Objects.equals(pricePerDay, house.pricePerDay)
+                && Objects.equals(district, house.district)
+                && Objects.equals(comfortClass, house.comfortClass)
+                && Objects.equals(description, house.description)
+                && Objects.equals(discountPrice, house.discountPrice)
+                && Arrays.equals(mapLocation, house.mapLocation);
+    }
 
     @Override
     public String toString() {
@@ -161,7 +181,7 @@ public class House {
             return new ObjectMapper().writeValueAsString(this);
         }
         catch (JsonProcessingException e) {
-            return "Error convert Client to JSON";
+            return e.getMessage();
         }
     }
 }

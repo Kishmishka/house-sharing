@@ -7,21 +7,20 @@ public enum ResponseMessage {
     CLIENT_NOT_FOUND("Client not found"),
     INCORRECT_PASSWORD("Incorrect password"),
     LOGIN_ALREADY_EXISTS("Login already exists"),
-    HOUSES_NOT_FOUND("Houses not found");
+    HOUSES_NOT_FOUND("Houses not found"),
+    NO_DIFFERENCE_BETWEEN_DATA("No difference between new and old data"),
+    HOUSE_NOT_FOUND("House not found"),
+    DELETED_SUCCESSFULLY("Deleted successfully");
 
-    private String message;
+    private final String message;
 
     ResponseMessage(String message) {
         this.message = message;
     }
 
-    public String getValue() {
-        return message;
-    }
-
     public String getJSON() {
         class MessageObject {
-            public String message;
+            public final String message;
             MessageObject(String message) {
                 this.message = message;
             }
