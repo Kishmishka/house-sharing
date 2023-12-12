@@ -5,15 +5,15 @@ CREATE TABLE Client(
 	login VARCHAR(50) UNIQUE NOT NULL,
 	password VARCHAR(150) NOT NULL,
 	status VARCHAR(10) NOT NULL DEFAULT 'user',
-	phone_number VARCHAR(15) NOT NULL,
-	email VARCHAR(50),
+	phone_number VARCHAR(15) UNIQUE NOT NULL,
+	email VARCHAR(50) UNIQUE,
 	balance DECIMAL(10,2) NOT NULL DEFAULT 0
 );
 
 CREATE TABLE House(
 	id BIGSERIAL PRIMARY KEY,
 	photo_link TEXT,
-	address VARCHAR(150) NOT NULL,
+	address VARCHAR(150) UNIQUE NOT NULL,
 	parking_spaces_count INTEGER NOT NULL DEFAULT 0,
 	price_per_day DECIMAL(8,2) NOT NULL,
 	district VARCHAR(100) NOT NULL,
@@ -21,7 +21,8 @@ CREATE TABLE House(
 	description TEXT,
 	discount_price DECIMAL(8,2),
 	map_location DECIMAL(10,7)[] NOT NULL,
-	addition_date TIMESTAMP(6) DEFAULT NOW()
+	addition_date TIMESTAMP(6) DEFAULT NOW(),
+	last_change_date TIMESTAMP(6)
 );
 
 CREATE TABLE Rented_House(
