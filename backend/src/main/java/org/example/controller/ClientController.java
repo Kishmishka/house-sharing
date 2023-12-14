@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.hibernateConnector.HibernateSessionController;
 import org.example.model.Client;
+import org.example.model.House;
 import org.example.response.ErrorMessageResponse;
 import org.example.response.ResponseMessage;
 import org.hibernate.exception.ConstraintViolationException;
@@ -19,24 +20,20 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
 
 @RestController
 @RequestMapping("/api/clients")
 @SuppressWarnings("unused")
 public class ClientController {
+    private record Clients(List<Client> clients) {
+    }
     @Autowired
     private HibernateSessionController sessionController;
 
     @RequestMapping(value = "/all", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getAllClients() {
-        class Clients {
-            public final List<Client> clients;
-            public Clients(List<Client> clients) {
-                this.clients = clients;
-            }
-        }
-
         try (var session = HibernateSessionController.openSession()) {
             List<Client> clients = session.createQuery("from Client", Client.class).list();
             return new ResponseEntity<>(new Clients(clients), HttpStatus.OK);
@@ -133,6 +130,63 @@ public class ClientController {
             return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>(client, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/edit", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> editClient(@RequestBody Client editClient) {
+        if (editClient.getLogin() == null || editClient.getPassword() == null || editClient.getPhoneNumber() == null
+                || editClient.getBalance() == null || editClient.getStatus() == null) {
+            return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.BAD_REQUEST, "Request must contains 'login', 'password', 'phoneNumber', 'balance' and 'status'"), HttpStatus.BAD_REQUEST);
+        }
+
+        try (var session = HibernateSessionController.openSession()) {
+            Client oldClient = session.get(Client.class, editClient.getId());
+            if (oldClient.equals(editClient)) {
+                return new ResponseEntity<>(ResponseMessage.NO_DIFFERENCE_BETWEEN_DATA.getJSON(), HttpStatus.CONFLICT);
+            }
+
+            try {
+                var methods = oldClient.getClass().getMethods();
+                for (var method : methods) {
+                    if (method.getName().startsWith("get") && method.getParameterTypes().length == 0 && !void.class.equals(method.getReturnType())) {
+                        if (!Objects.equals(method.invoke(oldClient), method.invoke(editClient))) {
+                            var setterName = method.getName().replace("get", "set");
+                            var setter = Client.class.getMethod(setterName, method.getReturnType());
+                            setter.invoke(oldClient, method.invoke(editClient));
+                        }
+                    }
+                }
+
+            } catch (Exception e) {
+                return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+
+            session.beginTransaction();
+            session.merge(oldClient);
+            session.getTransaction().commit();
+
+            return new ResponseEntity<>(oldClient, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @RequestMapping(value = "/delete", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> deleteHouse(@RequestParam(value = "id") Long id) {
+        try (var session = HibernateSessionController.openSession()) {
+            House deletedClient = session.get(House.class, id);
+            if (deletedClient == null) {
+                return new ResponseEntity<>(ResponseMessage.HOUSE_NOT_FOUND.getJSON(), HttpStatus.NOT_FOUND);
+            }
+
+            session.beginTransaction();
+            session.remove(deletedClient);
+            session.getTransaction().commit();
+
+            return new ResponseEntity<>(ResponseMessage.DELETED_SUCCESSFULLY.getJSON(), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     private String hashPassword(String password) {
