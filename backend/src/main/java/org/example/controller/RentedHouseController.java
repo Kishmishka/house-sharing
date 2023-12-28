@@ -1,9 +1,11 @@
 package org.example.controller;
 
 import org.example.hibernateConnector.HibernateSessionController;
+import org.example.model.House;
 import org.example.model.RentedHouse;
 import org.example.response.ErrorMessageResponse;
 import org.example.response.ResponseMessage;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -11,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -143,9 +146,9 @@ public class RentedHouseController {
 
     private Long getUserCurrentTransactionsNumber(Long id) {
         try (var session = HibernateSessionController.openSession()) {
-            String totalRentalPeriodQuery = "SELECT COUNT(*) FROM Rented_House WHERE idClient = :id " +
+            String totalCurrentTransactionsNumberQuery = "SELECT COUNT(*) FROM Rented_House WHERE idClient = :id " +
                                              "AND rentalEndDate > CURRENT_TIMESTAMP";
-            var queryTotalRental = session.createQuery(totalRentalPeriodQuery, Long.class);
+            var queryTotalRental = session.createQuery(totalCurrentTransactionsNumberQuery, Long.class);
             queryTotalRental.setParameter("id", id);
 
             return queryTotalRental.uniqueResult();
@@ -183,6 +186,106 @@ public class RentedHouseController {
             var totalRentalPeriod = getUserTotalRentalPeriod(id);
 
             return new ResponseEntity<>(new UserInfo(transactionsCount, currentTransactionsNumber, avgMoney, lastBiggestDeal, totalMoney, totalRentalPeriod), HttpStatus.OK);
+        }
+        catch (Exception e) {
+            return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @RequestMapping(value = "/user/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getUserHousesInfo(@PathVariable("id") Long id) {
+        try (var session = HibernateSessionController.openSession()) {
+            DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
+
+            String userHousesInfoQuery = "SELECT r FROM Rented_House r WHERE r.idClient = :id AND " +
+                    "r.rentalEndDate > :yearAgo";
+            var queryTotalRental = session.createQuery(userHousesInfoQuery, RentedHouse.class);
+            queryTotalRental.setParameter("id", id);
+            queryTotalRental.setParameter("yearAgo", LocalDateTime.now().minusYears(1));
+
+            var houses = queryTotalRental.list();
+
+            return new ResponseEntity<>(new RentedHouses(houses), HttpStatus.OK);
+        }
+        catch (Exception e) {
+            return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @RequestMapping(value = "/create-deal", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> createDeal(@RequestBody RentedHouse newDeal) {
+        if (newDeal.getIdHouse() == null || newDeal.getIdClient() == null
+                || newDeal.getRentalDuration() == null || newDeal.getTotalAmount() == null) {
+            return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.BAD_REQUEST, "Request must contains 'idHouse', 'idClient', 'rentalStartDate', 'rentalDuration', 'rentalEndDate' and 'totalAmount'"), HttpStatus.BAD_REQUEST);
+        }
+
+        try (var session = HibernateSessionController.openSession()) {
+            DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
+            // проверка что дом свободен
+            var freeHouses = session.createNativeQuery("select * from FreeHouse where id = :id", House.class)
+                    .setParameter("id", newDeal.getIdHouse())
+                    .uniqueResult();
+
+            if (freeHouses == null) {
+                return new ResponseEntity<>(ResponseMessage.DEAL_ALREADY_EXISTS.getJSON(), HttpStatus.CONFLICT);
+            }
+
+            LocalDateTime currentDateTime;
+            if (newDeal.getRentalStartDate() == null) {
+                currentDateTime = LocalDateTime.now();
+                newDeal.setRentalStartDate(Timestamp.valueOf(currentDateTime));
+                newDeal.setRentalEndDate(Timestamp.valueOf(currentDateTime.plusDays(newDeal.getRentalDuration())));
+            }
+            else {
+                currentDateTime = newDeal.getRentalStartDate().toLocalDateTime();
+                newDeal.setRentalEndDate(Timestamp.valueOf(currentDateTime.plusDays(newDeal.getRentalDuration())));
+            }
+
+            session.beginTransaction();
+            session.persist(newDeal);
+            session.getTransaction().commit();
+
+            return new ResponseEntity<>(newDeal, HttpStatus.CREATED);
+
+        }
+        catch (ConstraintViolationException e) {
+            return new ResponseEntity<>(ResponseMessage.DEAL_ALREADY_EXISTS.getJSON(), HttpStatus.CONFLICT);
+        }
+        catch (Exception e) {
+            return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @RequestMapping(value = "/edit-deal", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> editDeal(@RequestBody RentedHouse newDeal) {
+        if (newDeal.getIdHouse() == null || newDeal.getIdClient() == null
+                || newDeal.getRentalDuration() == null || newDeal.getTotalAmount() == null) {
+            return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.BAD_REQUEST, "Request must contains 'idHouse', 'idClient', 'rentalStartDate', 'rentalDuration', 'rentalEndDate' and 'totalAmount'"), HttpStatus.BAD_REQUEST);
+        }
+
+        try (var session = HibernateSessionController.openSession()) {
+            DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
+
+            LocalDateTime currentDateTime;
+            if (newDeal.getRentalStartDate() == null) {
+                currentDateTime = LocalDateTime.now();
+                newDeal.setRentalStartDate(Timestamp.valueOf(currentDateTime));
+                newDeal.setRentalEndDate(Timestamp.valueOf(currentDateTime.plusDays(newDeal.getRentalDuration())));
+            }
+            else {
+                currentDateTime = newDeal.getRentalStartDate().toLocalDateTime();
+                newDeal.setRentalEndDate(Timestamp.valueOf(currentDateTime.plusDays(newDeal.getRentalDuration())));
+            }
+
+            session.beginTransaction();
+            session.merge(newDeal);
+            session.getTransaction().commit();
+
+            return new ResponseEntity<>(newDeal, HttpStatus.CREATED);
+
+        }
+        catch (ConstraintViolationException e) {
+            return new ResponseEntity<>(ResponseMessage.DEAL_ALREADY_EXISTS.getJSON(), HttpStatus.CONFLICT);
         }
         catch (Exception e) {
             return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
