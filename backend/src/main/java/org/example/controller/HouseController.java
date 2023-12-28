@@ -1,5 +1,6 @@
 package org.example.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.hibernateConnector.HibernateSessionController;
 import org.example.model.House;
 import org.example.response.ErrorMessageResponse;
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @RestController
@@ -73,7 +75,7 @@ public class HouseController {
         if (newHouse.getAddress() == null || newHouse.getPricePerDay() == null
                 || newHouse.getDistrict() == null || newHouse.getComfortClass() == null
                 || newHouse.getMapLocation() == null) {
-            return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.BAD_REQUEST, "Request must contains 'address', 'price_per_day', 'district', 'comfort_class' and 'map_location'"), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.BAD_REQUEST, "Request must contains 'address', 'pricePerDay', 'district', 'comfortClass' and 'mapLocation'"), HttpStatus.BAD_REQUEST);
         }
 
         try (var session = HibernateSessionController.openSession()) {
@@ -86,7 +88,7 @@ public class HouseController {
             session.persist(newHouse);
             session.getTransaction().commit();
         } catch (ConstraintViolationException e) {
-            return new ResponseEntity<>(ResponseMessage.LOGIN_ALREADY_EXISTS.getJSON(), HttpStatus.CONFLICT);
+            return new ResponseEntity<>(ResponseMessage.HOUSE_ALREADY_EXISTS.getJSON(), HttpStatus.CONFLICT);
         } catch (Exception e) {
             return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.BAD_REQUEST, e.getMessage()), HttpStatus.BAD_REQUEST);
         }
@@ -136,8 +138,10 @@ public class HouseController {
     }
 
     @RequestMapping(value = "/delete", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> deleteHouse(@RequestParam(value = "id") Long id) {
+    public ResponseEntity<?> deleteHouse(@RequestBody String idHouse) {
         try (var session = HibernateSessionController.openSession()) {
+            var idMap = new ObjectMapper().readValue(idHouse, Map.class);
+            Long id = new ObjectMapper().convertValue(idMap.get("id"), Long.class);
             House deletedHouse = session.get(House.class, id);
             if (deletedHouse == null) {
                 return new ResponseEntity<>(ResponseMessage.HOUSE_NOT_FOUND.getJSON(), HttpStatus.NOT_FOUND);

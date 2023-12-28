@@ -34,6 +34,9 @@ public class Client {
     @Column(name = "balance", nullable = false)
     private BigDecimal balance = BigDecimal.ZERO;
 
+    @Column(name = "photo_link")
+    private String photoLink;
+
     public Long getId() {
         return id;
     }
@@ -88,6 +91,14 @@ public class Client {
 
     public void setBalance(BigDecimal balance) {
         this.balance = balance;
+    }
+
+    public String getPhotoLink() {
+        return photoLink;
+    }
+
+    public void setPhotoLink(String photoLink) {
+        this.photoLink = photoLink;
     }
 
     @Override

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.hibernateConnector.HibernateSessionController;
 import org.example.model.Client;
-import org.example.model.House;
 import org.example.response.ErrorMessageResponse;
 import org.example.response.ResponseMessage;
 import org.hibernate.exception.ConstraintViolationException;
@@ -36,6 +35,10 @@ public class ClientController {
     public ResponseEntity<?> getAllClients() {
         try (var session = HibernateSessionController.openSession()) {
             List<Client> clients = session.createQuery("from Client", Client.class).list();
+            if (clients == null) {
+                return new ResponseEntity<>(ResponseMessage.CLIENTS_NOT_FOUND, HttpStatus.NOT_FOUND);
+            }
+
             return new ResponseEntity<>(new Clients(clients), HttpStatus.OK);
         }
         catch (Exception e) {
@@ -45,14 +48,17 @@ public class ClientController {
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getClientById(@PathVariable("id") Long id) {
-        var session = HibernateSessionController.openSession();
-        var client = session.get(Client.class, id);
-        session.close();
+        try (var session = HibernateSessionController.openSession()) {
+            var client = session.get(Client.class, id);
 
-        if (client == null) {
-            return new ResponseEntity<>(ResponseMessage.CLIENT_NOT_FOUND.getJSON(), HttpStatus.NOT_FOUND);
+            if (client == null) {
+                return new ResponseEntity<>(ResponseMessage.CLIENT_NOT_FOUND.getJSON(), HttpStatus.NOT_FOUND);
+            }
+            return new ResponseEntity<>(client, HttpStatus.OK);
         }
-        return new ResponseEntity<>(client, HttpStatus.OK);
+        catch (Exception e) {
+            return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @RequestMapping(value = "/login", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -98,6 +104,13 @@ public class ClientController {
         || newClient.getPhoneNumber() == null) {
             return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.BAD_REQUEST, "Request must contains 'login', 'password' and 'phoneNumber'"), HttpStatus.BAD_REQUEST);
         }
+        if (newClient.getStatus() == null) {
+            newClient.setStatus("user");
+        }
+        if (!newClient.getStatus().equalsIgnoreCase("user")
+                && !newClient.getStatus().equalsIgnoreCase("admin")) {
+            return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.BAD_REQUEST, "Status must be 'user' or 'admin'"), HttpStatus.BAD_REQUEST);
+        }
 
         try (var session = HibernateSessionController.openSession()) {
             session.beginTransaction();
@@ -106,7 +119,7 @@ public class ClientController {
             session.getTransaction().commit();
         }
         catch (ConstraintViolationException e) {
-            return new ResponseEntity<>(ResponseMessage.LOGIN_ALREADY_EXISTS.getJSON(), HttpStatus.CONFLICT);
+            return new ResponseEntity<>(ResponseMessage.LOGIN_OR_PHONE_NUMBER_ALREADY_EXISTS.getJSON(), HttpStatus.CONFLICT);
         }
         catch (Exception e) {
             return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.BAD_REQUEST, e.getMessage()), HttpStatus.BAD_REQUEST);
@@ -115,21 +128,30 @@ public class ClientController {
         return new ResponseEntity<>(newClient, HttpStatus.CREATED);
     }
 
-    @RequestMapping(value = "/give_money", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getMoneyToClient(@RequestBody Client client) {
+    @RequestMapping(value = "/hesoyam", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getMoneyToClient(@RequestBody String idClient) {
         try (var session = HibernateSessionController.openSession()) {
+            var idMap = new ObjectMapper().readValue(idClient, Map.class);
+            Long id = new ObjectMapper().convertValue(idMap.get("id"), Long.class);
+
             var random = new Random();
 
+            var client = session.get(Client.class, id);
+            if (client == null) {
+                return new ResponseEntity<>(ResponseMessage.CLIENT_NOT_FOUND.getJSON(), HttpStatus.NOT_FOUND);
+            }
+
             session.beginTransaction();
-            var newBalance = BigDecimal.valueOf(random.nextDouble() * 999.9 + 0.1); // [0.1; 100.0]
+            var newBalance = BigDecimal.valueOf(random.nextDouble() * 999.99 + 0.11); // [0.1; 1000.0]
             client.setBalance(client.getBalance().add(newBalance));
             session.merge(client);
             session.getTransaction().commit();
+
+            return new ResponseEntity<>(client, HttpStatus.OK);
         }
         catch (Exception e) {
             return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>(client, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/edit", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -172,11 +194,13 @@ public class ClientController {
     }
 
     @RequestMapping(value = "/delete", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> deleteHouse(@RequestParam(value = "id") Long id) {
+    public ResponseEntity<?> deleteClient(@RequestBody String idClient) {
         try (var session = HibernateSessionController.openSession()) {
-            House deletedClient = session.get(House.class, id);
+            var idMap = new ObjectMapper().readValue(idClient, Map.class);
+            Long id = new ObjectMapper().convertValue(idMap.get("id"), Long.class);
+            Client deletedClient = session.get(Client.class, id);
             if (deletedClient == null) {
-                return new ResponseEntity<>(ResponseMessage.HOUSE_NOT_FOUND.getJSON(), HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(ResponseMessage.CLIENT_NOT_FOUND.getJSON(), HttpStatus.NOT_FOUND);
             }
 
             session.beginTransaction();
