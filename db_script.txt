@@ -8,7 +8,7 @@ CREATE TABLE Client(
 	phone_number VARCHAR(15) UNIQUE NOT NULL,
 	email VARCHAR(50) UNIQUE,
 	balance DECIMAL(10,2) NOT NULL DEFAULT 0,
-	photo_link TEXT,
+	photo_link TEXT
 );
 
 CREATE TABLE House(
