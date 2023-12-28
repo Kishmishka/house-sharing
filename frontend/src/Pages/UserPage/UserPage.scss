@@ -1,0 +1,21 @@
+.UserPage{
+	&__content{
+		display: flex;
+		position: relative;
+		z-index: 4;
+		justify-content: space-evenly;
+	}
+}
+.UserPage::after {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	content: '';
+	background-image: url('../../image/HousePageFon.png');
+	background-size: cover;
+	opacity: 0.2;
+	z-index: 1;
+	
+}

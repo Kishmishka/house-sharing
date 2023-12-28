@@ -1,26 +1,44 @@
-import React from 'react';
-
 import './App.css';
-import ClickButton from './Components/UI/CkickButton/ClickButton';
 import Header from './Components/Header/Header';
 import SortingMenu from './Components/SortingMenu/SortingMenu';
-import MyButton from './Components/UI/HeaderButton/HeaderButton';
-import Card from './Components/Card/Card';
 import CardList from './Components/CardList/CardList';
+import MyMap from './Components/Map/MyMap';
+import  { useRef,useEffect,useState} from 'react'
+import { useMapStore } from './store';
+import {Routes, Route, Link} from 'react-router-dom'
+import HomePage from './Pages/HomePage/HomePage';
+import ClassMenu from './Components/ClassMenu/ClassMenu';
+import Banner from './Components/Banner/Banner';
+import HousePage from './Pages/HousePage/HosePage';
+import AuthPage from './Pages/AuthPage/AuthPage';
+import LayoutStandart from './Components/LayoutStandart/LayoutStandart';
+import RegPage from './Pages/RegPage/RegPage';
+import UserPage from './Pages/UserPage/UserPage';
 
 
 function App() {
-  return (
+	
+
+  return ( 
     <div className="App">
-		<div className='fixed'>
-			<Header/>
-	  		<SortingMenu/>
-			  
-		</div>
-     
-		<CardList/>
-	  
-	  
+			{/* <Header>
+				<ClassMenu/>
+			</Header>
+			<Banner> 
+				<SortingMenu/>
+			</Banner>	 */}
+	  		{/* <SortingMenu/>   */}
+			
+		
+			<Routes>
+				<Route path='/' element={<HomePage/>}/>
+				<Route path='/auth' element={<AuthPage/>}/>
+				<Route path='/registration' element={<RegPage/>}/>
+				<Route path='/house/:id' element={<HousePage/>}/>
+				<Route path='/user/:id' element={<UserPage/>}/>
+			</Routes>
+		
+		  {/* <Footer/>   */}
     </div>
   );
 }

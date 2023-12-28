@@ -1,0 +1,149 @@
+.UserCard{
+	position: relative;
+	cursor: pointer;
+	
+	 
+	 max-width: 550px;
+	 perspective: 2000px;
+	//  &:focus{
+	// 	border: solid 2px red;
+	//  }
+	&__back{
+		transition: 0.6s;
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background-color: white;
+		transform: rotateY(180deg);
+		backface-visibility: hidden;
+	}
+	&__front{
+		transition: 0.6s;
+		background-color: white;
+		backface-visibility: hidden;
+	}
+}
+.UserCard__front.hide{
+	transform: rotateY(180deg);
+	
+}
+.UserCard__back.hide{
+	transform: rotateY(360deg);
+	
+}
+.buy__price.userCard{
+	padding: 8px  0;
+	font-size: 25px;
+}
+.UserCard.rented::after{
+	content: "";
+	position: absolute;
+	z-index: 14;
+	background-color: rgba($color: #000000, $alpha: 0.3);
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+}
+@font-face {
+	font-family: "grantTheAuto";
+  src: url("../../Fonts/660_pricedown_rus.ttf");
+}
+.UserCard.rented::before{
+	content: "Wasted";
+	position: absolute;
+	z-index: 15;
+	color: #BE2D2D;
+	font-family: "grantTheAuto";
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	font-size: 90px;
+	transform: rotate(30deg);
+}
+.back {
+
+	&__content {
+		font-size: 25px;
+		text-align: start;
+		height:  100%;
+	}
+	&__content__icon{
+		position: absolute;
+		top: 12px;
+		right: 10px;
+		transition: 0.2s;
+	}
+	&__content__icon:hover{
+		fill: #FFCC33;
+	}
+	&__content-title {
+		margin: 10px 0;
+		text-align: center;
+		font-size: 28px;
+		text-transform: uppercase;
+		color: #235938;
+		margin-right: 20px;
+	}
+
+	&__content-info {
+		
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+	}
+
+	&__content-info-item {
+		padding: 10px 0 10px 20px;
+		margin-bottom: 20px;
+		background-color: rgba($color: #000000, $alpha: 0.05);
+	}
+	&__menu {
+		display: flex;
+		justify-content: space-evenly;
+		margin: 0 5px;
+	}
+
+	&__menu-price {
+		// border-top:  2px solid #116B37;
+		// border-bottom:  2px solid #116B37;
+		border:  2px solid #116B37;
+		border-radius: 18px;
+		padding: 2px 15px 3px 15px;
+		font-size: 22px;
+	}
+	&__menu-CountDay{
+
+		max-width: 30%;
+		text-align: center;
+		outline:none;
+		border: none;
+		border:  2px solid #116B37;
+		border-radius: 18px;
+		padding: 2px 15px 3px 15px;
+		font-size: 22px;
+	
+	}
+
+	&__menu-button {
+	text-decoration: none;
+	background-color: #116B37;
+	color: white;
+	border-radius: 18px;
+	padding: 2px 15px 3px 15px;
+	font-size: 22px;
+	transition: 0.2s;
+	}
+	&__menu-button:hover {
+		background-color: #EFC730;
+		color: white;
+	}
+	
+}
+

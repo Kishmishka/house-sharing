@@ -1,0 +1,26 @@
+.RegPage::after {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	content: '';
+	background-image: url('../../image/HousePageFon.png');
+	background-size: cover;
+	opacity: 0.2;
+	z-index: 1;
+}
+.validation {
+	margin-bottom: 5px;
+	padding: 5px ;
+	border-radius: 3px;
+	background-color: rgba($color: red, $alpha: 0.8);
+
+	color: white;
+	&__output {
+	}
+}
+.auth__button.reg{
+	margin-top: 20px;
+
+}

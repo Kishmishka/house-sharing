@@ -1,0 +1,129 @@
+
+.HousePage {
+	&__menu {
+		border-bottom: 4px solid #CCCCCC;
+		text-transform: uppercase;
+		display: flex;
+		font-size: 28px;
+		justify-content: space-between;
+		color:#19703C ;
+	}
+
+	&__content {
+		position: relative;
+		z-index: 4;
+	}
+}
+
+.HousePage::after {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	content: '';
+	background-image: url('../../image/HousePageFon.png');
+	background-size: cover;
+	opacity: 0.2;
+	z-index: 1;
+}
+.Banner {
+	&__text {
+		font-size: 32px;
+	color: white;
+	font-weight: 300;
+	padding: 5px 0;
+	}
+}
+.container {
+}
+.menu {
+
+	&__button{
+		position: relative;
+		z-index: 2;
+		color: #19703C;
+		text-decoration: none;
+		cursor: pointer;
+		transition: 0.2s;
+	}
+	&__button:hover{
+		transform: translateY(-3px);
+	}
+}
+.houseContent {
+	margin-top: 135px;
+	display: flex;
+	gap: 20px;
+	justify-content: center;
+	&__info{
+		align-items: flex-start;
+		display: flex;
+		flex-direction: column;
+	}
+	&__title {
+		font-size: 37px;
+		color: #19703C;
+	}
+
+	&__text {
+		flex: 1 0 auto;
+		p{
+			font-size: 20px;
+			text-align: left;
+		}
+	}
+
+	&__rent {
+	}
+
+	&__card{
+
+	}
+	
+}
+.rent-element{
+	width: 30%;
+}
+.rent {
+	
+	input{
+		background-color: transparent;
+	}
+	display: flex;
+	width: 100%;
+	font-size: 32px;
+	&__price {
+		font-size:38px;
+	
+		
+		align-items: center;
+		border-top:4px solid #CCCCCC;
+		border-bottom:  4px solid #CCCCCC;
+	}
+
+	&__dayCount {
+		font-size:38px;
+		text-align: center;
+		outline:none;
+		border: none;
+		border-top:4px solid #CCCCCC;
+		border-bottom:  4px solid #CCCCCC;
+		background-color: #F9F9F6;
+	}
+	
+
+	&__button {
+		cursor:pointer;
+		text-transform: uppercase;
+		background-color: #19703C;
+		color: white;
+		padding: 10px 16px;
+		transition: 0.2s;
+	}
+	&__button:hover {
+		
+		background-color: #114D29;
+		
+	}
+}

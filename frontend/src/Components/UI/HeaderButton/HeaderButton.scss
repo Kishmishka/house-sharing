@@ -1,14 +1,7 @@
 .MyButton.active{
 padding: 4px 0;
 	background-color: #19703C;
-	display: inline-block;
 	color: white;
-	font-size: 30px;
-	font-weight:300;
-	text-transform: uppercase;
-	min-width: 340px;
-	transition: 0.2s;
-	cursor: pointer;
 }
 
 .MyButton{
@@ -23,3 +16,28 @@ padding: 4px 0;
 		transition: 0.2s;
 		cursor: pointer;
 	}
+
+@media (max-width: 1745px) {
+	.MyButton{
+		font-size: 24px;
+		min-width: 300px;
+		}
+
+	
+}
+
+@media (max-width: 1550px) {
+	.MyButton{
+		font-size: 21px;
+		min-width: 250px;
+		}
+
+	
+}
+
+@media (max-width: 1300px) {
+	.MyButton{
+		font-size: 18px;
+		min-width: 220px;
+		}
+}

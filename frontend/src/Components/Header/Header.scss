@@ -1,15 +1,16 @@
 .header{
 	background-image: url(../../image/headerFon.jpg);
 	background-repeat: no-repeat;
-
+	position: relative;
+	z-index: 2;
 	background-size:auto;
 	padding-top:20px;
 	overflow: hidden;
 	background-position-y: -420px;
-	&__nav{
-		display: flex;
-		justify-content: center;
-		gap: 10px
-	}
+	// &__content{
+	// 	display: flex;
+	// 	justify-content: space-between;
+	// 	margin: 0 20px;
+	// }
 	
 }

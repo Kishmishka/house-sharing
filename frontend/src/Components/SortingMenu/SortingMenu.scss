@@ -1,15 +1,5 @@
 .SortingMenu {
-	background-color: #F9F9F6;
-	border-bottom: 10px solid transparent;
-background-image:
-        linear-gradient(#19703C, #19703C),
-        linear-gradient(to top right, transparent 50.5%, #19703C 50.5%),
-        linear-gradient(to top left, transparent 50.5%, #19703C 50.5%);
-background-repeat: repeat, repeat-x, repeat-x, repeat-x, repeat-x;
-background-position: 0 0,  10px 100%, 10px 100%;
-background-size: auto auto,  20px 20px, 20px 20px;
-background-clip: padding-box,  border-box, border-box;
-background-origin: padding-box,  border-box, border-box;
+	
 	&__content {
 		padding-top: 10px;
 		display: flex;
@@ -41,3 +31,47 @@ background-origin: padding-box,  border-box, border-box;
 .container {
 }
 
+@media (max-width: 1745px) {
+	.SortingMenu{
+		&__separator{
+			margin: 6px 5px;
+		}
+		&__title{
+			font-size: 23px;
+		}
+	}
+
+	
+}
+
+@media (max-width: 1550px) {
+	.SortingMenu{
+		&__separator{
+			margin: 5px 5px;
+		}
+		&__title{
+			font-size: 20px;
+		}
+	}
+
+	
+}
+
+@media (max-width: 1400px) {
+	.SortingMenu{
+		
+		&__title{
+			font-size: 19px;
+		}
+	}
+}
+
+@media (max-width: 1300px) {
+	.SortingMenu{
+		font-size: 16px;
+		&__title{
+			font-size: 17px;
+		}
+	}
+}
+		

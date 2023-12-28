@@ -1,0 +1,130 @@
+.AuthPage {
+	
+	
+	
+	&__content{
+		margin: 0 auto;
+		max-width: 560px;
+		margin-top: 20vh;
+		
+		
+	}
+	&__title {
+		text-transform: uppercase;
+		color: #19703C;
+		font-size: 35px;
+	}
+
+	&__auth {
+		
+	}
+}
+.AuthPage::after {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	content: '';
+	background-image: url('../../image/HousePageFon.png');
+	background-size: cover;
+	opacity: 0.2;
+	z-index: 1;
+}
+.Banner {
+
+	&__text {
+	}
+}
+
+.auth {
+	
+	&__elem{
+		
+		display: flex;
+		align-items: center;
+		overflow: hidden;
+		
+	}
+	&__elem-icon{
+		border-bottom: 2px solid white;
+		padding-right: 10px;
+	}
+	&__elem-icon.eye{
+		padding-right: 0px;
+		padding-left: 10px;
+		cursor: pointer;
+	}
+	padding: 30px 20px;
+	border-radius: 5px;
+	background: rgba(#19703C, 0.9);
+	position: relative;
+	z-index: 4;
+	margin: 0 auto;
+	
+	font-size: 38px;
+	display: flex;
+	flex-direction: column;
+	gap:10px;
+	&__login {
+		border:4px solid #CCCCCC;
+		outline:none;
+		color: white;
+		border: none;
+		background-color: transparent;
+		border-bottom:2px solid #CCCCCC;
+		text-decoration: none;
+	}
+
+	&__iput {
+		
+		width: 100%;
+		outline:none;
+		color: white;
+		border: none;
+		background-color: transparent;
+		border-bottom:2px solid white;
+		text-decoration: none;
+	}
+	&__reg{
+		color: white;
+		font-size: 20px;
+		text-align: start;
+	}
+	&__buttonContainer{
+		display: flex;
+		justify-content: flex-end;
+		
+	}
+	&__reg-link{
+		text-decoration: none;
+		color: rgba($color: white, $alpha: 0.7);
+		transition: 0.2s;
+		cursor: pointer;
+	}
+	&__reg-link:hover{
+		
+		color: rgba($color: white, $alpha: 1);
+	}
+	&__button {
+		font-size: 27px;
+		color: #3A6E4F;
+		background-color: white;
+		border-radius: 25px;
+		padding: 0 10px;
+		transition: 0.2s;
+		cursor: pointer;
+		border-bottom:2px solid transparent ;
+		
+	}
+	&__button:hover {
+		background-color: #FFCC33;
+		
+		
+	}
+}
+
+.phone__icon{
+	fill: white;
+	color: white;
+}

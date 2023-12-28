@@ -1,0 +1,22 @@
+
+.MyMap {
+	
+	&__ofers {
+		background-color: transparent;
+		
+		display: flex;
+		justify-content: flex-end;
+		text-transform: uppercase;
+		color: #235938;
+		font-size: 35px;
+		border-bottom: 4px solid #CCCCCC;
+		padding-bottom: 5px;
+		margin-bottom: 7px;
+		
+		
+	}
+
+	&__map{
+		border: 4px solid #FFCC33;
+	}
+}

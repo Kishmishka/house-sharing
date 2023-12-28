@@ -10,9 +10,7 @@
 	color: #104A27;
 	cursor: pointer;
 	&__text {
-
 	}
-
 	&__figure {
 		transition: 0.2s;
 		width: 1em;
@@ -24,12 +22,6 @@
 }
 
 .ClickButton.active{
-	transition: 0.2s;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	font-size: 22px;
-	text-transform: uppercase;
 	color: #FFCC33;
 	&__text {
 
@@ -37,8 +29,8 @@
 
 	&__figure{
 		transition: 0.2s;
-		width: 1em;
-  		height: 0.5em;
+		width: 1rem;
+  		height: 0.5rem;
   		border: 2px solid #FFCC33;
   		border-radius: 0 0 50% 50% / 0 0 100% 100%;
   		background: #FFCC33;
@@ -47,4 +39,32 @@
 .ClickButton__figure.active{
 	border: 2px solid #FFCC33;
 	background: #FFCC33;
+}
+
+@media (max-width: 1745px) {
+	.ClickButton{
+		font-size: 23px;
+		}
+
+	
+}
+
+@media (max-width: 1550px) {
+	.ClickButton{
+		font-size: 20px;
+		}
+
+	
+}
+
+@media (max-width: 1400px) {
+	.ClickButton{
+		font-size: 19px;
+		}
+}
+
+@media (max-width: 1300px) {
+	.ClickButton{
+		font-size: 17px;
+		}
 }

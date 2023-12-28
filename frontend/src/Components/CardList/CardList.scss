@@ -1,0 +1,32 @@
+.CardList {
+	position: relative;
+	z-index: 1;
+	max-height: calc(100vh - 370px);
+	overflow: hidden;
+
+	&__ofers {
+		// background-color: linear-gradient(90deg, rgba(240,240,238,1) 0%, rgba(223,223,221,1) 100%);
+		background: rgb(239,239,237);
+background: linear-gradient(90deg, rgba(239,239,237,1) 0%, rgba(240,240,238,1) 100%);
+		position: relative;
+		z-index: 2;
+		display: flex;
+		text-transform: uppercase;
+		color: #235938;
+		font-size: 35px;
+		border-bottom: 4px solid #CCCCCC;
+		padding-bottom: 5px;
+		margin-bottom: 5px;
+		padding-left: 20px;
+	}
+	&__container{
+		display: flex;
+		flex-direction: column;
+	}
+
+	&__ofers-title {
+		margin-right: 10px;
+	}
+}
+.container {
+}

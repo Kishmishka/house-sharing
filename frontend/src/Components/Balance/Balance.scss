@@ -1,0 +1,15 @@
+@font-face {
+	  font-family: "grantTheAuto";
+	 src: url("../../Fonts/660_pricedown_rus.ttf");
+ }
+ .Balance{
+	font-family: grantTheAuto;
+	font-weight: 1200;
+	font-size:4em;
+	 color: #669868;
+	-webkit-text-stroke: 3px black; /* Толщина и цвет обводки */
+	position: fixed;
+	top: 0;
+	right: 20px;
+	z-index: 30;
+ }

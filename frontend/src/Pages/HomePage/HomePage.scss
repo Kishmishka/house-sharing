@@ -1,0 +1,22 @@
+.homePage{
+	&__content{
+		display: flex;
+		justify-content: space-between;
+		position: relative;
+		z-index: 4;
+	}
+	
+}
+
+.homePage::after {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	content: '';
+	background-image: url('../../image/HousePageFon.png');
+	background-size: cover;
+	opacity: 0.2;
+	z-index: 1;
+}

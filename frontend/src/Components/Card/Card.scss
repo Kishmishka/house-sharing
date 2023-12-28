@@ -1,0 +1,100 @@
+.Card {
+	cursor: pointer;
+	background-color: white;
+	 box-shadow: 1px 1px 5px 0px rgba(34, 60, 80, 0.2);
+	 max-width: 550px;
+	
+}
+
+.content {
+	border: 4px solid transparent;
+	display: flex;
+	flex-direction: column;
+	font-size: 18px;
+	&__foto {
+		transition: 0.1s;
+		margin: 11px 11px 3px 11px;
+		border: 4px solid white;
+	}
+
+	&__params {
+		margin-left: 15px;
+		display: flex;
+		align-items: center;
+	}
+
+	&__params-address {
+	}
+
+	&__params-parking {
+		display: flex;
+	}
+
+	&__buy {
+	}
+
+	&__place {
+		display: flex;
+		justify-content: flex-start;
+		margin: 5px 0 10px 15px
+	}
+}
+
+.content:hover .content__foto {
+	
+	border: 4px solid #116B37;
+}
+
+
+
+.parking {
+	display: flex;
+	align-items: center;
+	margin-left: 50px;
+	&__count {
+		margin-right: 5px;
+	}
+
+	&__icon {
+	}
+}
+.buy {
+	transition: 0.1s;
+	padding-left: 15px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	background-color: #F9F9F6;
+	&__price {
+		font-size: 40px;
+		font-weight: 400;
+	}
+
+	&__button {
+		text-decoration: none;
+		display: none;
+		background-color: #116B37;
+		color: white;
+		border-radius: 18px;
+		margin-right: 15px;
+		padding: 2px 15px 3px 15px;
+		font-size: 22px;
+		transition: 0.2s;
+	}
+	&__button:hover {
+		background-color: #EFC730;
+		color: white;
+	}
+}
+.content:hover .buy {
+	background-color: #D2E2D8;
+	
+}
+.content.active {
+	border: 4px solid #EFC730;
+}
+
+.content.active .buy__button{
+	display: block;
+}
+

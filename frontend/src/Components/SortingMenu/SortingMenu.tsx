@@ -21,15 +21,14 @@ const SortingMenu = () => {
 					<div className='SortingMenu__title'>Место:</div>
 					<ClickButton text={"центр"} state={housePlace[0].value} setState={setHouseClass} namePlace={housePlace[0].name}/>
 					<div className='SortingMenu__separator'></div>
-					<ClickButton text={"Восточний л-с"} state={housePlace[1].value} setState={setHouseClass} namePlace={housePlace[1].name}/>
+					<ClickButton text={"Московский"} state={housePlace[1].value} setState={setHouseClass} namePlace={housePlace[1].name}/>
 					<div className='SortingMenu__separator'></div>
-					<ClickButton text={"Западный л-с"} state={housePlace[2].value} setState={setHouseClass} namePlace={housePlace[2].name}/>
+					<ClickButton text={"Железнодорожный"} state={housePlace[2].value} setState={setHouseClass} namePlace={housePlace[2].name}/>
 					<div className='SortingMenu__separator'></div>
-					<ClickButton text={"Северный л-с"} state={housePlace[3].value} setState={setHouseClass} namePlace={housePlace[3].name}/>
+					<ClickButton text={"Октябрьский"} state={housePlace[3].value} setState={setHouseClass} namePlace={housePlace[3].name}/>
 					<div className='SortingMenu__separator'></div>
-					<ClickButton text={"Южный л-с"} state={housePlace[4].value} setState={setHouseClass} namePlace={housePlace[4].name}/>
-					<div className='SortingMenu__separator'></div>
-					<ClickButton text={"округ блэйн"}state={housePlace[5].value} setState={setHouseClass} namePlace={housePlace[5].name}/>
+					<ClickButton text={"Советский"} state={housePlace[4].value} setState={setHouseClass} namePlace={housePlace[4].name}/>
+					
 				</div>
 				</div>
 				
