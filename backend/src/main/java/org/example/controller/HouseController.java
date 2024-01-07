@@ -22,6 +22,7 @@ import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/houses")
+@CrossOrigin(origins = "*")
 @SuppressWarnings("unused")
 public class HouseController {
     private record Houses(List<House> houses) {

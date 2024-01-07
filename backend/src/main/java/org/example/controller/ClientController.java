@@ -24,6 +24,7 @@ import java.util.Random;
 
 @RestController
 @RequestMapping("/api/clients")
+@CrossOrigin(origins = "*")
 @SuppressWarnings("unused")
 public class ClientController {
     private record Clients(List<Client> clients) {

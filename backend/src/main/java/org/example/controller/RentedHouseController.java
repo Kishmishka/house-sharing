@@ -21,6 +21,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/rented-houses")
+@CrossOrigin(origins = "*")
 @SuppressWarnings("unused")
 public class RentedHouseController {
     private record RentedHouses(List<RentedHouse> rentedHouses) {
