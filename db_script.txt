@@ -27,6 +27,7 @@ CREATE TABLE House(
 );
 
 CREATE TABLE Rented_House(
+	id BIGSERIAL PRIMARY KEY,
 	id_house BIGSERIAL NOT NULL,
 	id_client BIGSERIAL NOT NULL,
 	rental_start_date TIMESTAMP(6) NOT NULL DEFAULT NOW(),
@@ -34,7 +35,6 @@ CREATE TABLE Rented_House(
 	rental_end_date TIMESTAMP(6) NOT NULL DEFAULT (NOW() + INTERVAL '1 day'),
 	total_amount DECIMAL(8,2) NOT NULL,
 	
-	CONSTRAINT PK_RentedHouse_IDHouseIDClient PRIMARY KEY(id_house, id_client),
 	CONSTRAINT FK_RentedHouse_IDHouse FOREIGN KEY(id_house)
 		REFERENCES House(id) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT FK_RentedHouse_IDClient FOREIGN KEY(id_client)
