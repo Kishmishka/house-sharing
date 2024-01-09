@@ -62,7 +62,7 @@ public class ClientController {
         }
     }
 
-    @RequestMapping(value = "/login", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/login", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getClientByLoginAndPassword(@RequestBody String loginData) {
         if (!loginData.contains("login") || !loginData.contains("password")) {
             return new ResponseEntity<>(new ErrorMessageResponse(HttpStatus.BAD_REQUEST, "Request must contains 'login' and 'password'"), HttpStatus.BAD_REQUEST);
