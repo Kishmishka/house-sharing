@@ -39,7 +39,7 @@ public class ClientController {
 
     @RequestMapping(value = "/create", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> createClient(@RequestBody Client newClient) {
-        if (newClient.getLogin() == null ||  newClient.getPassword() == null  || newClient.getPhoneNumber() == null) {
+        if (newClient.getLogin() == null || newClient.getPassword() == null || newClient.getPhoneNumber() == null) {
             return ExceptionHandler.handleUserException("Request must contains 'login', 'password' and 'phoneNumber'",
                     HttpStatus.BAD_REQUEST);
         }

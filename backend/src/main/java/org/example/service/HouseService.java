@@ -45,8 +45,7 @@ public class HouseService {
             }
 
             return new ResponseEntity<>(house, HttpStatus.OK);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return ExceptionHandler.handleServerException(e);
         }
     }
@@ -92,7 +91,7 @@ public class HouseService {
         try (var session = sessionController.openSession()) {
             if (newHouse.getAdditionDate() == null) {
                 newHouse.setAdditionDate(Timestamp.valueOf(LocalDateTime.now(ZoneId.of("Europe/Moscow"))
-                                        .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"))));
+                        .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"))));
             }
 
             session.beginTransaction();

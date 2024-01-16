@@ -127,8 +127,7 @@ public class Client {
     public String toString() {
         try {
             return new ObjectMapper().writeValueAsString(this);
-        }
-        catch (JsonProcessingException e) {
+        } catch (JsonProcessingException e) {
             return e.getMessage();
         }
     }

@@ -24,6 +24,7 @@ public enum ResponseMessage {
     public String getJSON() {
         class MessageObject {
             public final String message;
+
             MessageObject(String message) {
                 this.message = message;
             }
@@ -31,8 +32,7 @@ public enum ResponseMessage {
 
         try {
             return new ObjectMapper().writeValueAsString(new MessageObject(this.message));
-        }
-        catch (JsonProcessingException e) {
+        } catch (JsonProcessingException e) {
             return e.getMessage();
         }
     }

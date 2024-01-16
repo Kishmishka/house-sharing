@@ -26,6 +26,7 @@ import java.util.Random;
 public class ClientService {
     private record Clients(List<Client> clients) {
     }
+
     @Autowired
     private HibernateSessionController sessionController;
 
@@ -37,8 +38,7 @@ public class ClientService {
             }
 
             return new ResponseEntity<>(new Clients(clients), HttpStatus.OK);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return ExceptionHandler.handleServerException(e);
         }
     }
@@ -51,8 +51,7 @@ public class ClientService {
             }
 
             return new ResponseEntity<>(client, HttpStatus.OK);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return ExceptionHandler.handleServerException(e);
         }
     }
@@ -61,8 +60,8 @@ public class ClientService {
         try (var session = sessionController.openSession()) {
             var loginDataMap = new ObjectMapper().readValue(loginDataJSON, Map.class);
 
-            String login = (String)loginDataMap.get("login");
-            String password = (String)loginDataMap.get("password");
+            String login = (String) loginDataMap.get("login");
+            String password = (String) loginDataMap.get("password");
 
             var query = session.createQuery("from Client where login = :login and password = :password", Client.class);
             query.setParameter("login", login);
@@ -80,11 +79,9 @@ public class ClientService {
             }
 
             return new ResponseEntity<>(client, HttpStatus.OK);
-        }
-        catch (JsonProcessingException e) {
+        } catch (JsonProcessingException e) {
             return ExceptionHandler.handleServerException(e, HttpStatus.BAD_REQUEST);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return ExceptionHandler.handleServerException(e);
         }
     }
@@ -97,11 +94,9 @@ public class ClientService {
             session.getTransaction().commit();
 
             return new ResponseEntity<>(newClient, HttpStatus.CREATED);
-        }
-        catch (ConstraintViolationException e) {
+        } catch (ConstraintViolationException e) {
             return ExceptionHandler.handleInfoException(ResponseMessage.LOGIN_OR_PHONE_NUMBER_ALREADY_EXISTS, HttpStatus.CONFLICT);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return ExceptionHandler.handleServerException(e);
         }
     }
@@ -125,8 +120,7 @@ public class ClientService {
             session.getTransaction().commit();
 
             return new ResponseEntity<>(client, HttpStatus.OK);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return ExceptionHandler.handleServerException(e);
         }
     }
@@ -201,7 +195,7 @@ public class ClientService {
         StringBuilder hexString = new StringBuilder();
         for (byte b : hash) {
             String hex = Integer.toHexString(0xff & b);
-            if(hex.length() == 1) hexString.append('0');
+            if (hex.length() == 1) hexString.append('0');
             hexString.append(hex);
         }
         return hexString.toString();

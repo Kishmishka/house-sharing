@@ -1,9 +1,7 @@
 package org.example.controller;
 
 import org.example.ExceptionHandler.ExceptionHandler;
-import org.example.model.Client;
 import org.example.model.House;
-import org.example.response.ResponseMessage;
 import org.example.service.HouseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -42,7 +40,7 @@ public class HouseController {
     public ResponseEntity<?> createHouse(@RequestBody House newHouse) {
         if (Stream.of(newHouse.getAddress(), newHouse.getPricePerDay(), newHouse.getDistrict(),
                         newHouse.getComfortClass(), newHouse.getMapLocation())
-                        .anyMatch(Objects::isNull)) {
+                .anyMatch(Objects::isNull)) {
             return ExceptionHandler.handleUserException(
                     "Request must contains 'address', 'pricePerDay', 'district', 'comfortClass' and 'mapLocation'",
                     HttpStatus.BAD_REQUEST);
@@ -55,7 +53,7 @@ public class HouseController {
     public ResponseEntity<?> editHouse(@RequestBody House editedHouse) {
         if (Stream.of(editedHouse.getAddress(), editedHouse.getPricePerDay(), editedHouse.getDistrict(),
                         editedHouse.getComfortClass(), editedHouse.getMapLocation())
-                        .anyMatch(Objects::isNull)) {
+                .anyMatch(Objects::isNull)) {
             return ExceptionHandler.handleUserException(
                     "Request must contains 'address', 'pricePerDay', 'district', 'comfortClass' and 'mapLocation'",
                     HttpStatus.BAD_REQUEST);

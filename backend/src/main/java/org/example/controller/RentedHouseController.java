@@ -43,7 +43,7 @@ public class RentedHouseController {
     @RequestMapping(value = "/create-deal", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> createDeal(@RequestBody RentedHouse newDeal) {
         if (Stream.of(newDeal.getIdHouse(), newDeal.getIdClient(), newDeal.getRentalDuration(), newDeal.getTotalAmount())
-                  .anyMatch(Objects::isNull)) {
+                .anyMatch(Objects::isNull)) {
             return ExceptionHandler.handleUserException(
                     "Request must contains 'idHouse', 'idClient', 'rentalDuration' and 'totalAmount'",
                     HttpStatus.BAD_REQUEST);
@@ -56,7 +56,7 @@ public class RentedHouseController {
     public ResponseEntity<?> editDeal(@RequestBody RentedHouse editedDeal) {
         if (Stream.of(editedDeal.getIdHouse(), editedDeal.getIdClient(), editedDeal.getRentalDuration(),
                         editedDeal.getTotalAmount())
-                        .anyMatch(Objects::isNull)) {
+                .anyMatch(Objects::isNull)) {
             return ExceptionHandler.handleUserException(
                     "Request must contains 'idHouse', 'idClient', 'rentalDuration' and 'totalAmount'",
                     HttpStatus.BAD_REQUEST);
@@ -68,7 +68,7 @@ public class RentedHouseController {
     @RequestMapping(value = "/extend-deal", method = RequestMethod.PATCH, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> extendDeal(@RequestBody String extendInfoJSON) {
         if (!extendInfoJSON.contains("idRentedHouse") || !extendInfoJSON.contains("additionalDays")
-            || !extendInfoJSON.contains("additionalPrice")) {
+                || !extendInfoJSON.contains("additionalPrice")) {
             return ExceptionHandler.handleUserException(
                     "Request must contains 'idRentedHouse', 'additionalDays', 'additionalPrice'",
                     HttpStatus.BAD_REQUEST);

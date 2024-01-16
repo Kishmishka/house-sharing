@@ -65,7 +65,7 @@ public class RentedHouseService {
             LocalDateTime endDateTime = LocalDateTime.parse(endDate, dateTimeFormat);
 
             var query = session.createQuery("FROM Rented_House WHERE rentalStartDate BETWEEN :startDate AND :endDate",
-                                            RentedHouse.class);
+                    RentedHouse.class);
             query.setParameter("endDate", startDateTime);
             query.setParameter("startDate", endDateTime);
             var houses = query.list();
@@ -91,8 +91,7 @@ public class RentedHouseService {
         }
     }
 
-    private Long getUserTransactionsCount(Long id)
-    {
+    private Long getUserTransactionsCount(Long id) {
         String transactionsCountQuery = "SELECT COUNT(*) FROM Rented_House WHERE idClient = :id";
         return executeUserAvgInfoQuery(transactionsCountQuery, id, Long.class);
     }
@@ -153,22 +152,22 @@ public class RentedHouseService {
 
             return new ResponseEntity<>(new UserInfo(transactionsCount, currentTransactionsNumber, avgMoney,
                     lastBiggestDeal, totalMoney, totalRentalPeriod), HttpStatus.OK);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return ExceptionHandler.handleServerException(e);
         }
     }
 
     public ResponseEntity<?> getUserHousesInfo(Long id) {
         record UserDeal(Long id, House house, Long idClient, String rentalStartDate,
-                                 Integer rentalDuration, String rentalEndDate, BigDecimal totalAmount, Boolean isRented) {
+                        Integer rentalDuration, String rentalEndDate, BigDecimal totalAmount, Boolean isRented) {
         }
 
         record UserDealList(List<UserDeal> deals) {
         }
 
         record UserHousesInfo(Long id, String photoName, String address, Integer countParking, BigDecimal price,
-                              String place, Timestamp endDate, Timestamp startDate, Boolean rented, String description) {
+                              String place, Timestamp endDate, Timestamp startDate, Boolean rented,
+                              String description) {
         }
 
         try (var session = sessionController.openSession()) {
@@ -197,8 +196,7 @@ public class RentedHouseService {
             }
 
             return new ResponseEntity<>(new UserDealList(deals), HttpStatus.OK);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return ExceptionHandler.handleServerException(e);
         }
     }
@@ -206,8 +204,7 @@ public class RentedHouseService {
     private House getHouseById(Long id) {
         try (var session = sessionController.openSession()) {
             return session.get(House.class, id);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return null;
         }
     }
@@ -230,8 +227,7 @@ public class RentedHouseService {
                 currentDateTime = LocalDateTime.now();
                 newDeal.setRentalStartDate(Timestamp.valueOf(currentDateTime));
                 newDeal.setRentalEndDate(Timestamp.valueOf(currentDateTime.plusDays(newDeal.getRentalDuration())));
-            }
-            else {
+            } else {
                 currentDateTime = newDeal.getRentalStartDate().toLocalDateTime();
                 newDeal.setRentalEndDate(Timestamp.valueOf(currentDateTime.plusDays(newDeal.getRentalDuration())));
             }
@@ -242,11 +238,9 @@ public class RentedHouseService {
 
             return new ResponseEntity<>(newDeal, HttpStatus.CREATED);
 
-        }
-        catch (ConstraintViolationException e) {
+        } catch (ConstraintViolationException e) {
             return ExceptionHandler.handleInfoException(ResponseMessage.DEAL_ALREADY_EXISTS, HttpStatus.CONFLICT);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return ExceptionHandler.handleServerException(e);
         }
     }
@@ -260,8 +254,7 @@ public class RentedHouseService {
                 currentDateTime = LocalDateTime.now();
                 editedDeal.setRentalStartDate(Timestamp.valueOf(currentDateTime));
                 editedDeal.setRentalEndDate(Timestamp.valueOf(currentDateTime.plusDays(editedDeal.getRentalDuration())));
-            }
-            else {
+            } else {
                 currentDateTime = editedDeal.getRentalStartDate().toLocalDateTime();
                 editedDeal.setRentalEndDate(Timestamp.valueOf(currentDateTime.plusDays(editedDeal.getRentalDuration())));
             }
@@ -272,11 +265,9 @@ public class RentedHouseService {
 
             return new ResponseEntity<>(editedDeal, HttpStatus.CREATED);
 
-        }
-        catch (ConstraintViolationException e) {
+        } catch (ConstraintViolationException e) {
             return ExceptionHandler.handleInfoException(ResponseMessage.DEAL_ALREADY_EXISTS, HttpStatus.CONFLICT);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return ExceptionHandler.handleServerException(e);
         }
     }
@@ -285,9 +276,9 @@ public class RentedHouseService {
         try (var session = sessionController.openSession()) {
             var extendInfoMap = new ObjectMapper().readValue(extendInfoJSON, Map.class);
 
-            Long idRentedHouse = Long.valueOf((String)extendInfoMap.get("idRentedHouse")).longValue();
-            Integer additionalDays = Integer.valueOf((String)extendInfoMap.get("additionalDays")).intValue();
-            BigDecimal additionalPrice = new BigDecimal((String)extendInfoMap.get("additionalPrice"));
+            Long idRentedHouse = Long.valueOf((String) extendInfoMap.get("idRentedHouse")).longValue();
+            Integer additionalDays = Integer.valueOf((String) extendInfoMap.get("additionalDays")).intValue();
+            BigDecimal additionalPrice = new BigDecimal((String) extendInfoMap.get("additionalPrice"));
 
             var deal = session.get(RentedHouse.class, idRentedHouse);
             var newDuration = deal.getRentalDuration() + additionalDays;
@@ -307,11 +298,9 @@ public class RentedHouseService {
 
             return new ResponseEntity<>(deal, HttpStatus.CREATED);
 
-        }
-        catch (ConstraintViolationException e) {
+        } catch (ConstraintViolationException e) {
             return ExceptionHandler.handleInfoException(ResponseMessage.DEAL_ALREADY_EXISTS, HttpStatus.CONFLICT);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return ExceptionHandler.handleServerException(e);
         }
     }
