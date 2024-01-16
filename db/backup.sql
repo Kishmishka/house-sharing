@@ -108,8 +108,7 @@ CREATE TABLE public.rented_house (
     rental_start_date timestamp(6) without time zone DEFAULT now() NOT NULL,
     rental_duration integer NOT NULL,
     rental_end_date timestamp(6) without time zone DEFAULT (now() + '1 day'::interval) NOT NULL,
-    total_amount numeric(8,2) NOT NULL,
-    CONSTRAINT rented_house_rental_duration_check CHECK (((rental_duration >= 1) AND (rental_duration <= 31)))
+    total_amount numeric(8,2) NOT NULL
 );
 
 
@@ -276,9 +275,15 @@ COPY public.client (id, login, password, status, phone_number, email, balance, p
 --
 
 COPY public.house (id, photo_link, address, parking_spaces_count, price_per_day, district, comfort_class, description, discount_price, map_location, addition_date, last_change_date) FROM stdin;
-1	http://example.com/photo1.jpg	123 Main St	2	150.00	Central	Luxury	Beautiful house with a great view	\N	{40.7128000,-74.0060000}	2023-01-01 12:00:00	\N
-2	http://example.com/photo2.jpg	456 Oak St	1	120.00	Suburb	Standard	Cozy home with a garden	100.00	{34.0522000,-118.2437000}	2023-02-15 14:30:00	\N
-3	http://example.com/photo3.jpg	789 Pine St	0	80.00	Downtown	Economy	Compact apartment in the city center	\N	{41.8781000,-87.6298000}	2023-03-30 10:45:00	\N
+1	http://example.com/photo1.jpg	23 Lermontova St	2	150.00	Центр	topСlass	Beautiful house with a great view	\N	{54.626380, 39.719343}	2023-01-01 12:00:00	\N
+2	http://example.com/photo2.jpg	26 Lermontova St	1	120.00	Московский	middleClass	Cozy home with a garden	100.00	{54.640309, 39.657591}	2023-02-15 14:30:00	\N
+3	http://example.com/photo3.jpg	27 Lermontova St	3	80.00	Железнодорожный	lowerClass	Compact apartment in the city center	\N	{54.609358, 39.696586}	2023-03-30 10:45:00	\N
+4	http://example.com/photo1.jpg	143 Main St	2	150.00	Центр	topСlass	Beautiful house with a great view	\N	{54.626467, 39.715473}	2023-04-01 12:00:00	\N
+5	http://example.com/photo2.jpg	21 Beruzova St	1	120.00	Московский	middleClass	Cozy home with a garden	100.00	{54.643355, 39.652832}	2023-05-15 14:30:00	\N
+6	http://example.com/photo3.jpg	789 Pine St	0	80.00	Октябрьский	lowerClass	Compact apartment in the city center	\N	{54.592035, 39.799455}	2023-06-30 10:45:00	\N
+7	http://example.com/photo1.jpg	654 Main St	2	150.00	Центр	topСlass	Beautiful house with a great view	\N	{54.628083, 39.731541}	2023-07-01 12:00:00	\N
+8	http://example.com/photo2.jpg	45 Oak St	1	120.00	Советский	middleClass	Cozy home with a garden	100.00	{54.639800, 39.756265}	2023-08-15 14:30:00	\N
+9	http://example.com/photo3.jpg	546 Beruzova St	0	80.00	Советский	hut	Compact apartment in the city center	\N	{54.638481, 39.745775}	2023-09-30 10:45:00	\N
 \.
 
 
