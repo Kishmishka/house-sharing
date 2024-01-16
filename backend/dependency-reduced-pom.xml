@@ -40,8 +40,27 @@
       </plugin>
     </plugins>
   </build>
+  <profiles>
+    <profile>
+      <id>local</id>
+      <properties>
+        <logger.console.tresholdFilter>ALL</logger.console.tresholdFilter>
+        <logger.socket.tresholdFilter>OFF</logger.socket.tresholdFilter>
+        <logstash.port>10000</logstash.port>
+      </properties>
+    </profile>
+    <profile>
+      <id>dev</id>
+      <properties>
+        <logger.console.tresholdFilter>OFF</logger.console.tresholdFilter>
+        <logger.socket.tresholdFilter>ALL</logger.socket.tresholdFilter>
+        <logstash.port>10001</logstash.port>
+      </properties>
+    </profile>
+  </profiles>
   <properties>
     <maven.compiler.target>21</maven.compiler.target>
+    <logstash.host>logstashcsm.example.ru</logstash.host>
     <maven.compiler.source>21</maven.compiler.source>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
