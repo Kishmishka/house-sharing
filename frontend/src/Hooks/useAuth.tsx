@@ -1,20 +1,25 @@
-import React, { FC, useState } from 'react'
 import ky from "ky"
+import { useNavigate } from 'react-router-dom';
+import { useUserStore, IUser  } from '../store';
 
-const useAuth = ():[boolean, (login:string, password:string)=>void] => {
-	const [res, setRes] = useState(false);
+const useAuth = (): (login:string, password:string)=>void=> {
+	const navigate = useNavigate()
+	const {setUser} = useUserStore();
 
-	async function getRequest(login:string, password:string){
-		const request = {login:login, password:password}
+	async function authorization(login:string, password:string){
 
+		const request = {login, password}
 		try{
-			const res = await ky.post("https://jsonplaceholder.typicode.com/todos", {json:request})
-			console.log(res)
+			const res:IUser = await ky.post(process.env.REACT_APP_API_URL + "/clients/login", {json:request}).json();
+			setUser(res)
+			navigate("/")
+			
 		}catch(err){
-			console.log(err)
+			console.log(err);
+			alert("Неверный логин или пароль")
 		}
-		setRes(true)
+		
 	}
-	return [res, getRequest]
+	return authorization
 }
 export default useAuth

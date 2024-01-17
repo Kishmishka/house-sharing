@@ -1,5 +1,4 @@
-import React, { FC } from 'react'
-// import { useStore } from '../../../store';
+import { FC } from 'react'
 import './ClickButton.scss'
 
 interface ClickButtonProps{

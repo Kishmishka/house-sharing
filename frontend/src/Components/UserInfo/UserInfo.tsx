@@ -1,11 +1,13 @@
-import React from 'react'
 import './UserInfo.scss'
 import avatar from '../../image/avatar.png'
 import { useUserStore } from '../../store'
 import { Link } from 'react-router-dom'
+import useMoney from '../../Hooks/useMoney'
 
 const UserInfo = () => {
 	const {user} = useUserStore()
+	const giveMoney = useMoney()
+
 	return(
 		<div className='UserInfo'>
 			<div className="UserInfo__title">
@@ -15,10 +17,10 @@ const UserInfo = () => {
 				<img className="top__avatar" src={avatar} alt="sf" />
 				<div className="top__info">
 					<div className="top__login">
-						{user.login}
+						{user?.login}
 					</div>
 					<div className="top__money">
-						${user.balance}
+						${user?.balance}
 					</div>
 				</div>
 			</div>
@@ -45,7 +47,12 @@ const UserInfo = () => {
 			<div className="UserInfo__menu">
 			<Link className="UserInfo__menu-button" to="/auth">Выход</Link>
 			<Link className="UserInfo__menu-button" to="/">На главную</Link>
+			<div className="UserInfo__menu-button"
+			onClick={()=>{
+				giveMoney(user?.id)
 				
+			}}
+			>Разбогатеть </div>
 			</div>
 		</div>
 )

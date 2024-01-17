@@ -1,10 +1,9 @@
-import React, { FC } from 'react'
+import  { FC } from 'react'
 import './UserCard.scss'
 import car from '../../image/icons/car.svg'
 import { HandySvg } from 'handy-svg';
 import house from '../../image/houses/house.png'
-import { Link } from 'react-router-dom';
-import { useHouseStore, useRentedHousesStore } from '../../store';
+import { useRentedHousesStore } from '../../store';
 import cross from '../../image/icons/cross.svg'
 
 interface UserCardProps{

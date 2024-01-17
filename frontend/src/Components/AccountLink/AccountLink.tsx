@@ -7,7 +7,7 @@ const AccountLink = () => {
 	const {user} = useUserStore()
 	return(
 		<div className='Account'>
-			<Link className="Account__avatar" to={`user/${user.id}`}>
+			<Link className="Account__avatar" to={`user/${user?.id}`}>
 				<img src={avatar} alt="" />
 			</Link>
 		</div>

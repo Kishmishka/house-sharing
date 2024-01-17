@@ -11,12 +11,17 @@ import closeEye from '../../image/icons/closeEye.svg'
 import './AuthPage.scss'
 import { useAuthStore, useUserStore } from '../../store'
 import useAuth from '../../Hooks/useAuth'
+import { useLocation} from 'react-router-dom'
 
 const AuthPage = () => {
 	const {showPass, setShowPass} = useAuthStore()
 	const [login, setLogin] = useState("")
 	const [password, setPassword] = useState("")
-	const [res, postAuth] = useAuth()
+	const authorization = useAuth()
+	
+	const location = useLocation();
+
+	const fromLocation = location.state?.from?.pathName || '/'
 
 	return(
 		<div className='AuthPage'>
@@ -86,7 +91,7 @@ const AuthPage = () => {
 						</div>
 						<div className='auth__buttonContainer'>
 							<div 
-							onClick={()=>{postAuth(login,password)}}
+							onClick={()=>authorization(login,password)}
 							className='auth__button'
 							>
 								войти

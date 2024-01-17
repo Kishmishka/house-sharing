@@ -1,11 +1,9 @@
-import {useRef, useMemo, FC, ReactNode} from 'react'
+import {useRef, useMemo, FC, ReactNode, useEffect} from 'react'
 import { useHouseStore, useSwiperStore} from '../../store'
 import {  Swiper,  SwiperRef,  SwiperSlide} from 'swiper/react';
-import {  Mousewheel } from 'swiper/modules';
+import {  A11y, Mousewheel, Navigation, Pagination, Scrollbar } from 'swiper/modules';
 import Card from '../Card/Card';
 import './CardList.scss'
-
-
 
 
 const CardList = () => {
@@ -14,13 +12,16 @@ const CardList = () => {
 	const changeCounter = useRef(false);
 	const localRef = useRef<SwiperRef>(null);
 
-useMemo(()=>{
-	if(changeCounter.current){
-		localRef.current?.swiper.slideTo(activeId)
-	}
-	changeCounter.current = true;
-},[activeId])
+	
 
+	useMemo(()=>{
+		if(changeCounter.current){
+			localRef.current?.swiper.slideTo(activeId-1)
+		}
+		changeCounter.current = true;
+	},[activeId])
+
+	
 
 	return(
 		<div className='CardList'>
@@ -37,12 +38,11 @@ useMemo(()=>{
 					<div className='CardList__list'>
 					<Swiper
 					ref={localRef}
-      			modules={[Mousewheel]} 
-				   height={420}
-				   slidesPerView={1}
+      			modules={[Navigation, Pagination, Scrollbar, A11y, Mousewheel]} 
+					slideToClickedSlide={true}
+				   height={410}
 					spaceBetween={10}
 					touchMoveStopPropagation={false}
-					simulateTouch={false}
 					mousewheel={true}
 					onSwiper={()=>{}}
 					direction={'vertical'}>

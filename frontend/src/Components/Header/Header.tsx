@@ -1,14 +1,8 @@
-import React, { Children, FC, ReactNode, ReactPortal, } from 'react'
-import MyButton from '../UI/HeaderButton/HeaderButton'
+import  {FC, ReactNode} from 'react'
 import "./Header.scss"
 import {HandySvg} from 'handy-svg'
 import logo from '../../image/logo.svg'
-import { useHouseClassStore,  } from '../../store'
-import HeaderButton from '../UI/HeaderButton/HeaderButton'
-import Baner from '../Banner/Banner'
-import SortingMenu from '../SortingMenu/SortingMenu'
-import Account from '../AccountLink/AccountLink'
-import Balance from '../Balance/Balance'
+
 
 
 interface HeaderProps{

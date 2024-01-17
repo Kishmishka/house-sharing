@@ -1,5 +1,5 @@
-import React, { FC } from 'react'
-import { Interface } from 'readline'
+import { FC } from 'react'
+
 import "./HeaderButton.scss"
 
 interface HeaderButtonProps{

@@ -4,18 +4,20 @@ import Card from '../../Components/Card/Card'
 import Header from '../../Components/Header/Header'
 import {useParams} from 'react-router-dom'
 import './HousePage.scss'
-import { useHousePageStore, useHouseStore } from '../../store'
+import { useHousePageStore, useHouseStore, useUserStore } from '../../store'
 import InfoCard from '../../Components/InfoCard/InfoCard'
 import { Link } from 'react-router-dom'
 import Footer from '../../Components/Footer/Footer'
+import useRentHouse from '../../Hooks/useRentHouse'
 
 
 const HousePage = () => {
 	const params = useParams();
 	const {getHouseById} = useHouseStore()
-	const{dayCount,setDayCount} = useHousePageStore()
+	const {dayCount,setDayCount} = useHousePageStore()
 	const house = getHouseById(Number(params.id));
-	
+	const {user} = useUserStore()
+	const  rentHouse = useRentHouse()
 	const handleChange = (event:any) => {
 		setDayCount(event.target.value);
 	 }
@@ -55,7 +57,7 @@ const HousePage = () => {
 						</div>
 						<div className='houseContent__text'>
 							<p>
-								{house.descriotion}
+								{house.description}
 							</p>
 						</div>
 						<div className='houseContent__rent rent'>
@@ -67,7 +69,9 @@ const HousePage = () => {
 							name="login" 
 							placeholder='кол-во дней' />
 							
-							<div className='rent__button rent-element'>Арендовать</div>
+							<div className='rent__button rent-element'
+							onClick={()=>{rentHouse(house.id,user?.id,String(dayCount),String(house.price*dayCount))}}
+							>Арендовать</div>
 							<div className='rent__price rent-element'>
 								$ {String(house.price*dayCount)}
 							</div>

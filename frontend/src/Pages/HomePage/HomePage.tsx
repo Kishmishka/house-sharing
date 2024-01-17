@@ -1,3 +1,4 @@
+import ky from 'ky'
 import React, { useEffect, useRef } from 'react'
 import Account from '../../Components/AccountLink/AccountLink'
 import Balance from '../../Components/Balance/Balance'
@@ -8,12 +9,15 @@ import Footer from '../../Components/Footer/Footer'
 import Header from '../../Components/Header/Header'
 import MyMap from '../../Components/Map/MyMap'
 import SortingMenu from '../../Components/SortingMenu/SortingMenu'
-import { useMapStore } from '../../store'
+import axios from 'axios'
+import { useMapStore, useHouseStore } from '../../store'
 import './HomePage.scss'
+import useGetHouses from '../../Hooks/useGetHouses'
+
 const HomePage = () => {
 	const container = useRef<HTMLDivElement>(null)
 	const{setMapWidth, setMapHeight} = useMapStore();
-
+	const getHouses = useGetHouses()
 
 	function handleResize(){
 		if(container.current?.offsetWidth != undefined){
@@ -22,6 +26,11 @@ const HomePage = () => {
 		}
 			
 	}
+
+	useEffect(() => {
+		getHouses()
+	},[])
+
 	useEffect(() => {
 		window.addEventListener('resize',handleResize);
 		handleResize()
@@ -29,6 +38,7 @@ const HomePage = () => {
 			window.removeEventListener('resize', handleResize);
 		 };
   }, [container.current?.offsetWidth]);
+
 	return(
 		<div className='homePage'>
 			

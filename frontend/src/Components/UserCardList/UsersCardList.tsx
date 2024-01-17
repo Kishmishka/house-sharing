@@ -1,12 +1,10 @@
-import React from 'react'
 import { Mousewheel } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/react'
-import { useHouseStore, useRentedHousesStore } from '../../store'
+import { useRentedHousesStore } from '../../store'
 import UserCard from '../UserCard/UserCard'
 import './UserCardList.scss'
 
 const UserCardList = () => {
-	const {houseList} = useHouseStore();
 	const {rentedHouseList} = useRentedHousesStore()
 	return(
 		<div className='UserCardList'> 

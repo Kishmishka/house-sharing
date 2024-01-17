@@ -21,18 +21,24 @@
 	&__menu {
 		display: flex;
 		justify-content: space-between;
+		gap:5px;
 	}
 
 	&__menu-button {
-		width: 40%;
-		font-size: 30px;
+		width: 30%;
+		font-size: 20px;
 		text-transform: uppercase;
 		color: white;
 		background-color: #116B37;
-		padding: 10px 20px;
+		padding: 10px 0px;
+		border-radius: 30px;
 		margin-top: 20px;
 		transition: 0.2s;
 		text-decoration: none;
+		align-items: center;
+		display: flex;
+		justify-content: center;
+		
 	}
 	&__menu-button:hover {
 	
@@ -54,6 +60,9 @@
 	}
 
 	&__info {
+		display: flex;
+		flex-direction: column;
+		align-items:flex-start
 	}
 
 	&__login {

@@ -1,4 +1,3 @@
-import React from 'react'
 import { useHouseClassStore } from '../../store'
 import HeaderButton from '../UI/HeaderButton/HeaderButton'
 import './ClassMenu.scss'
@@ -20,7 +19,7 @@ const ClassMenu = () => {
 					<HeaderButton text={"Низший класс"} state={houseClass[3].value} setState={setHouseClass}className={houseClass[3].name}/>
 				</div>
 				<div className='ClassMenu__elem'>
-					<HeaderButton text={"Новые"} state={houseClass[4].value} setState={setHouseClass}className={houseClass[4].name}/>
+					<HeaderButton text={"Шалаш"} state={houseClass[4].value} setState={setHouseClass}className={houseClass[4].name}/>
 				</div>
 		</div>
 )

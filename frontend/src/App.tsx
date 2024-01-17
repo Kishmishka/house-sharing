@@ -14,6 +14,7 @@ import AuthPage from './Pages/AuthPage/AuthPage';
 import LayoutStandart from './Components/LayoutStandart/LayoutStandart';
 import RegPage from './Pages/RegPage/RegPage';
 import UserPage from './Pages/UserPage/UserPage';
+import RequireAuth from './Components/hoc/RequireAuth';
 
 
 function App() {
@@ -29,9 +30,13 @@ function App() {
 			</Banner>	 */}
 	  		{/* <SortingMenu/>   */}
 			
-		
+	
 			<Routes>
-				<Route path='/' element={<HomePage/>}/>
+				<Route path='/' element={
+					<RequireAuth>
+						<HomePage/>
+					</RequireAuth>
+				}/>
 				<Route path='/auth' element={<AuthPage/>}/>
 				<Route path='/registration' element={<RegPage/>}/>
 				<Route path='/house/:id' element={<HousePage/>}/>
@@ -42,5 +47,6 @@ function App() {
     </div>
   );
 }
+
 
 export default App;

@@ -5,9 +5,11 @@ import Footer from '../../Components/Footer/Footer'
 import Header from '../../Components/Header/Header'
 import UserCardList from '../../Components/UserCardList/UsersCardList'
 import UserInfo from '../../Components/UserInfo/UserInfo'
+
 import './UserPage.scss'
 
 const UserPage = () => {
+	
 	return(
 		<div className='UserPage'>
 			<Header>

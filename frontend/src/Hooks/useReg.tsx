@@ -1,20 +1,29 @@
 import React, { FC, useState } from 'react'
 import ky from "ky"
+import { useUserStore, IUser } from '../store';
+import { useNavigate } from 'react-router-dom';
 
-const useReg = ():[boolean, (login:string, password:string)=>void] => {
-	const [res, setRes] = useState(false);
+const useReg = (): (login:string, password:string, phoneNumber:string)=>void => {
+	const navigate = useNavigate()
+	const {setUser} = useUserStore();
 
-	async function postAuth(login:string, password:string){
-		const request = {login:login, password:password}
+	async function registration(
+		login:string, 
+		password:string,
+		phoneNumber:string){
+
+		const request = {login, password,phoneNumber}
 
 		try{
-			const res = await ky.post("https://jsonplaceholder.typicode.com/todos", {json:request})
-			console.log(res)
+			const res:IUser = await ky.post( process.env.REACT_APP_API_URL + "/clients/create", {json:request}).json()
+			setUser(res)
+			navigate("/")
 		}catch(err){
 			console.log(err)
+			alert("Ошибка регистрации")
 		}
-		setRes(true)
+		
 	}
-	return [res, postAuth]
+	return registration
 }
 export default useReg

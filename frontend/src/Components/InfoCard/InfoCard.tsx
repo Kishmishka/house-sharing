@@ -11,7 +11,7 @@ interface CardProps{
 	countParking:Number;
 	price:Number;
 	place:String;
-	id:Number
+	id:number
 }
 
 const InfoCard:FC<CardProps> = ({photoName, id, address, countParking, price, place}) => {

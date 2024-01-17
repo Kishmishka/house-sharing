@@ -3,12 +3,9 @@ import React, { useEffect, useState,FC } from 'react'
 import './MyMap.scss'
 import logod from '../../image/logo.svg'
 import { useHouseStore, useMapStore, useSwiperStore} from '../../store'
-import { useSwiper } from 'swiper/react'
-
 
 const MyMap = () => {
 	const{mapWidth,mapHeight} = useMapStore();
-
 	const {setActiveId} = useSwiperStore();
 	const {houseList,setHouseActive} = useHouseStore();
 

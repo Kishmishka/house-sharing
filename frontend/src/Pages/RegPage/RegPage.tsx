@@ -1,6 +1,6 @@
 import { HandySvg } from 'handy-svg'
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React, {useState} from 'react'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
 import Banner from '../../Components/Banner/Banner'
 import Footer from '../../Components/Footer/Footer'
 import Header from '../../Components/Header/Header'
@@ -9,9 +9,16 @@ import lock from '../../image/icons/lock.svg'
 import repeat from '../../image/icons/repeat.svg'
 import user from '../../image/icons/user.svg'
 import './RegPage.scss'
+import useReg from '../../Hooks/useReg'
 
 
 const RegPage = () => {
+	const [login, setLogin] = useState("")
+	const [phone, setPhone] = useState("")
+	const [password, setPassword] = useState("")
+	const [repeatPassword, setRepeatPassword] = useState("")
+	const registration = useReg()
+	const navigate = useNavigate()
 	return(
 		<div className='RegPage'>
 			<Header>
@@ -35,6 +42,8 @@ const RegPage = () => {
 						</div>
 						<div className="auth__elem-input">
 							<input 
+							value={login}
+							onChange={(event:any)=>{setLogin(event.target.value)}}
 							className='auth__iput' 
 							type="text" 
 							name="login" 
@@ -53,6 +62,8 @@ const RegPage = () => {
 						</div>
 						<div className="auth__elem-input">
 							<input 
+							value={phone}
+							onChange={(event:any)=>{setPhone(event.target.value)}}
 							className='auth__iput' 
 							type="text" 
 							name="phone"
@@ -71,6 +82,8 @@ const RegPage = () => {
 						</div>
 						<div className="auth__elem-input">
 							<input 
+							value={password}
+							onChange={(event:any)=>{setPassword(event.target.value)}}
 							className='auth__iput' 
 							type="password" 
 							name="login" 
@@ -89,6 +102,8 @@ const RegPage = () => {
 						</div>
 						<div className="auth__elem-input">
 							<input 
+							value={repeatPassword}
+							onChange={(event:any)=>{setRepeatPassword(event.target.value)}}
 							className='auth__iput' 
 							type="password" 
 							name="login"
@@ -99,7 +114,9 @@ const RegPage = () => {
 					
 						
 						<div className='auth__buttonContainer'>
-							<div className='auth__button reg'>
+							<div className='auth__button reg'
+							onClick={()=>registration(login,password,phone)}
+							>
 								зарегистрироваться
 							</div>
 						</div>

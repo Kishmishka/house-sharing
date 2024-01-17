@@ -1,5 +1,5 @@
 import { HandySvg } from 'handy-svg'
-import React, { FC, ReactNode } from 'react'
+import  {FC} from 'react'
 import car from '../../image/icons/car.svg'
 import house from '../../image/houses/house.png'
 import './Card.scss'
@@ -13,7 +13,7 @@ interface CardProps{
 	price:Number;
 	place:String;
 	active:boolean;
-	id:Number
+	id:number
 }
 
 const Card:FC<CardProps> = ({photoName,price, id, active,address, countParking, place}) => {
